@@ -1,6 +1,10 @@
 ﻿using Exiled.API.Features;
 using Exiled.API.Interfaces;
+using KE.Utils.API;
+using KruacentExiled.Audio;
+using KruacentExiled.DebugSettings;
 using System;
+using System.Linq;
 
 namespace KruacentExiled
 {
@@ -42,6 +46,18 @@ namespace KruacentExiled
                 catch(Exception e)
                 {
                     Log.Error(e);
+                }
+
+            }
+
+            if (Config.Debug)
+            {
+
+                ReflectionHelper.GetObjects<DebugSetting>().ToList();
+                foreach (DebugSetting debug in DebugSetting.settings)
+                {
+                    debug.Create();
+                    debug.GetCategory();
                 }
 
             }
