@@ -19,8 +19,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
     public class Librarby : GlobalEvent, IEvent, IChanceRedactable
     {
         ///<inheritdoc/>
-        public override uint Id { get; set; } = 1091;
-        ///<inheritdoc/>
         public override string Name { get; set; } = "Librarby";
         ///<inheritdoc/>
         public override string Description { get; } = "Ne parlez pas trop fort sinon vous subirez les conséquences !";

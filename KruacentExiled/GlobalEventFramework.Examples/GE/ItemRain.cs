@@ -14,8 +14,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
     public class ItemRain : GlobalEvent, IAsyncStart
     {
         ///<inheritdoc/>
-        public override uint Id { get; set; } = 1090;
-        ///<inheritdoc/>
         public override string Name { get; set; } = "ItemRain";
         ///<inheritdoc/>
         public override string Description { get; } = "Il pleut des items !!";

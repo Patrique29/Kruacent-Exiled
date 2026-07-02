@@ -26,8 +26,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
 
 
         public override ImpactLevel ImpactLevel => ImpactLevel.VeryLow;
-        /// <inheritdoc/>
-        public override uint Id { get; set; } = 1041;
         /// <inheritdoc/>        
         public override string Name { get; set; } = "System Malfunction";
         /// <inheritdoc/>
@@ -38,8 +36,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
         };
         /// <inheritdoc/>
         public override int WeightedChance { get; set; } = 1;
-        ///<inheritdoc/>
-        public override uint[] IncompatibleEvents { get; set; } = { 38 };
         /// <summary>
         /// Set the cooldown for the BlackoutNDoor
         /// </summary>

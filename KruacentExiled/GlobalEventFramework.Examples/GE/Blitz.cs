@@ -14,8 +14,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
     public class Blitz : GlobalEvent, IAsyncStart
     {
         ///<inheritdoc/>
-        public override uint Id { get; set; } = 1046;
-        ///<inheritdoc/>
         public override string Name { get; set; } = "Blitz";
         ///<inheritdoc/>
         public override string Description { get; } = "La Luftwaffe arrive!";

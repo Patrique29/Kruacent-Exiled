@@ -18,7 +18,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.MiddleEvents
     {
         //shuffle de position une fois quand il est activé
         ///<inheritdoc/>
-        public override uint Id { get; set; } = 10045;
         ///<inheritdoc/>
         public override string Name { get; set; } = "MShuffleP";
         ///<inheritdoc/>

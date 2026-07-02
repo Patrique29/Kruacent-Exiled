@@ -79,6 +79,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 
         private static HashSet<GlobalEvent> _activeGE = new HashSet<GlobalEvent>();
 
+        /// <summary>
+        /// The color of all the <see cref="API.Enums."/>
+        /// </summary>
         public static IReadOnlyDictionary<ImpactLevel, string> ImpactToColor = new Dictionary<ImpactLevel, string>()
         {
             { ImpactLevel.VeryLow, "#d8d8ff" },
@@ -97,8 +100,14 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         /// A list of all registered GlobalEvents
         /// </summary>
         public static IEnumerable<GlobalEvent> GlobalEventsList => List.Where(ev => ev is GlobalEvent).Cast<GlobalEvent>();
-        ///<inheritdoc/>
+        
+        /// <summary>
+        /// The text shown to the player when the <see cref="GlobalEvent"/> is activated
+        /// </summary>
         public abstract string Description { get; }
+        /// <summary>
+        /// Other form of the <see cref="Description"/>
+        /// </summary>
         public virtual string[] AltDescription { get; } = null;
 
         public virtual ImpactLevel ImpactLevel { get; } = ImpactLevel.Medium;
@@ -110,7 +119,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             }
         }
 
-
+        /// <summary>
+        /// <para>Number of <see cref="GlobalEvent"/> chose</para>
+        /// <para>-1 if it wasn't chose yet</para>
+        /// </summary>
         public static int NumberOfGE { get; set; } = -1;
 
 

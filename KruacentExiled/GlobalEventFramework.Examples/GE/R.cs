@@ -8,8 +8,6 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
     public class R : GlobalEvent
     {
         ///<inheritdoc/>
-        public override uint Id { get; set; } = 0;
-        ///<inheritdoc/>
         public override string Name { get; set; } = "nothing";
         ///<inheritdoc/>
         public override string Description { get; } = "y'a r";
