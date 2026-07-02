@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace KruacentExiled.CustomRoles.API.Features
@@ -209,6 +210,27 @@ namespace KruacentExiled.CustomRoles.API.Features
             stringLookupTable.Remove(Name);
             InternalUnsubscribeEvents();
             UnsubscribeEvents();
+        }
+
+        public virtual string ShowConsole()
+        {
+            StringBuilder sb = StringBuilderPool.Pool.Get();
+
+            string[] name = Name.Split('_');
+
+            sb.Append("[<color=")
+                .Append(Role.GetColor().ToHex())
+                .Append('>')
+                .Append(name[0])
+                .Append("</color>")
+                .Append('_')
+                .Append(name[1])
+                .Append("] spawn chance:")
+                .Append(SpawnChance)
+                .Append('%');
+
+
+            return StringBuilderPool.Pool.ToStringReturn(sb);
         }
 
         protected virtual void InternalSubscribeEvents()

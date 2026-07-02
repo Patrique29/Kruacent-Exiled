@@ -109,6 +109,29 @@ namespace KruacentExiled.CustomRoles.API.Features
         }
 
 
+        //public override string ShowConsole()
+        //{
+        //    StringBuilder sb = StringBuilderPool.Pool.Get();
+
+        //    string[] name = Name.Split('_');
+
+        //    sb.Append("<color=#")
+        //        .Append(Role.GetColor().ToHex())
+        //        .Append('>')
+        //        .Append(name[0])
+        //        .Append("</color>")
+        //        .Append('_')
+        //        .Append(name[1])
+        //        .Append(" spawn chance:")
+        //        .Append(SpawnChance)
+        //        .Append('%');
+
+            
+
+            
+            
+        //    return StringBuilderPool.Pool.ToStringReturn(sb);
+        //}
 
         public override bool IsAvailable(Player player)
         {
