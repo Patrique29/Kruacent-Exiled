@@ -13,9 +13,14 @@ namespace KruacentExiled
 
         public static MainPlugin Instance { get; private set; }
 
+
+        public static AudioHandler AudioHandler { get; private set; }
+
         public override void OnEnabled()
         {
             Instance = this;
+
+            KE.Utils.API.Sounds.SoundPlayer.Load();
 
             plugins = new KEPlugin[]
             {
@@ -42,6 +47,9 @@ namespace KruacentExiled
             }
 
 
+            AudioHandler = new AudioHandler(Config.Debug);
+            AudioHandler.SubscribeEvents();
+
             base.OnEnabled();
         }
 
@@ -56,7 +64,10 @@ namespace KruacentExiled
 
             }
 
+            AudioHandler.UnsubscribeEvents();
+
             Instance = null;
+            AudioHandler = null;
 
             base.OnDisabled();
         }

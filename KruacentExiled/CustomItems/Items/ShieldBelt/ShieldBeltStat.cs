@@ -1,12 +1,21 @@
-﻿using Exiled.API.Features;
+﻿using AdminToys;
+using Exiled.API.Features;
 using Exiled.API.Features.Toys;
 using KE.Utils.API.Features.Models;
+using KruacentExiled.Audio;
+using Mirror;
+using ProjectMER.Commands.Modifying.Position;
+using ProjectMER.Commands.Modifying.Rotation;
+using ProjectMER.Commands.Modifying.Scale;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
+using Color = UnityEngine.Color;
 
 namespace KruacentExiled.CustomItems.Items.ShieldBelt
 {
@@ -27,6 +36,9 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
 
         private Player player;
         private Primitive primitive;
+
+
+        public const string NameReset = "Shield_Reset";
         public void RechargeTick()
         {
 
@@ -34,6 +46,7 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
             {
                 Log.Debug("recharged");
                 currentCharge = 20;
+                AudioHandler.Instance.PlayToAll(SoundType.Noise, NameReset, player.GameObject, 10);
                 recharging = false;
             }
 
@@ -92,6 +105,16 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
 
             if (IsActive)
             {
+                string absorbnoise = nameAbsorb.RandomItem();
+                try
+                {
+                    AudioHandler.Instance.PlayToAll(SoundType.Noise, absorbnoise, player.GameObject, 10);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+                
                 return 0;
             }
             else
@@ -101,7 +124,8 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
 
         }
 
-
+        private static readonly string[] nameAbsorb = new string[] { "Shield_Absorb_1b", "Shield_Absorb_1c", "Shield_Absorb_1d" };
+        private static readonly string[] nameBroken = new string[] { "Shield_Broken_1a", "Shield_Broken_1c" };
         public void Break()
         {
 
@@ -111,7 +135,9 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
                 timeRemaining = TimeBroken;
                 currentCharge = 0;
                 recharging = true;
-                player.PlayShieldBreakSound();
+                string breaknoise = nameBroken.RandomItem();
+
+                AudioHandler.Instance.PlayToAll(SoundType.Noise, breaknoise, player.GameObject, 10);
             }
 
         }
@@ -131,6 +157,9 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
                 return recharging;
             }
         }
+
+        private static uint assetId;
+        private static bool assetSet = false;
         private Primitive CreatePrimitive(Player player)
         {
             Primitive prim = Primitive.Create(null, null, null, false);
@@ -141,19 +170,40 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
             prim.Scale = MaxSize*Vector3.one;
             prim.Color = new Color32(50, 50, 50, 50);
             prim.MovementSmoothing = 0;
-            prim.Spawn();
 
-            
+
+            if(!assetSet)
+            {
+                foreach (GameObject prefab in NetworkClient.prefabs.Values)
+                {
+                    if (prefab.TryGetComponent<PrimitiveObjectToy>(out _))
+                    {
+                        assetId = prefab.GetComponent<NetworkIdentity>().assetId;
+                        assetSet = true;
+                        break;
+                    }
+                }
+            }
 
 
             return prim;
         }
+
         public void Awake()
         {
-            player = Player.Get(transform.root.gameObject);
-            primitive = CreatePrimitive(player);
-            currentCharge = Base;
-            timeRemaining = 0;
+            try
+            {
+                player = Player.Get(transform.root.gameObject);
+
+                primitive = CreatePrimitive(player);
+                currentCharge = Base;
+                timeRemaining = 0;
+            }
+            catch(Exception e)
+            {
+                Log.Error(e);
+            }
+            
         }
 
 

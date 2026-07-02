@@ -5,6 +5,7 @@ using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Interfaces;
 using Exiled.Events.EventArgs.Map;
 using Exiled.Events.EventArgs.Player;
+using KruacentExiled.Audio;
 using KruacentExiled.CustomItems.API.Extensions;
 using KruacentExiled.CustomItems.API.Interface;
 using MEC;
@@ -33,7 +34,7 @@ namespace KruacentExiled.CustomItems.Items.ItemEffects
             }
         }
 
-
+        public const string NoiseDeath = "divinepills_death";
 
         private void EffectItem(Player player, IDeniableEvent ev = null)
         {
@@ -47,6 +48,7 @@ namespace KruacentExiled.CustomItems.Items.ItemEffects
  
             if (random < 25)
             {
+                AudioHandler.Instance.PlayToAll(SoundType.Noise, NoiseDeath, player.Position, 40);
                 player.Kill("unlucky bro");
                 return;
             }

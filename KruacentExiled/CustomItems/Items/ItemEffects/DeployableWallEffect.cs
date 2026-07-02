@@ -1,4 +1,5 @@
-﻿using Exiled.API.Features.Toys;
+﻿using Exiled.API.Features;
+using Exiled.API.Features.Toys;
 using Exiled.Events.EventArgs.Map;
 using Exiled.Events.EventArgs.Player;
 using KE.Utils.API.Sounds;
@@ -36,7 +37,8 @@ namespace KruacentExiled.CustomItems.Items.ItemEffects
 
 
             Primitive wall = Primitive.Create(PrimitiveType.Cube, spawnPos, rotat, new Vector3(4, 4, 0.2f), true);
-            KE.Utils.API.Sounds.SoundPlayer.Instance.Play("lego", wall.GameObject, 10f, 40);
+
+            KruacentExiled.MainPlugin.AudioHandler.Play(Player.List, Audio.SoundType.Noise, "lego", wall.GameObject, 10f);
             wall.Collidable = true;
             wall.Visible = true;
             Timing.CallDelayed(10, () =>
