@@ -19,9 +19,15 @@ using UnityEngine;
 
 namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 {
+
+    /// <summary>
+    /// Create an event at the start of the round
+    /// </summary>
     public abstract class GlobalEvent : KEEvents
     {
-
+        /// <summary>
+        /// Handle the <see cref="GlobalEvent"/> in the round
+        /// </summary>
         private class GlobalEventHandler : IUsingEvents
         {
             private bool _eventsub = false;
@@ -77,6 +83,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         private static Config Config => MainPlugin.Configs;
         private static GlobalEventHandler _handler = new GlobalEventHandler();
 
+        /// <summary>
+        /// Currently active <see cref="GlobalEvent"/>
+        /// </summary>
         private static HashSet<GlobalEvent> _activeGE = new HashSet<GlobalEvent>();
 
         /// <summary>
@@ -92,7 +101,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             { ImpactLevel.Insane, "#ffd8d8" },
         };
 
-
+        /// <summary>
+        /// <see cref="GlobalEvent"/> forced by a command
+        /// </summary>
         public static HashSet<GlobalEvent> ForcedGE { get; } = new HashSet<GlobalEvent>();
 
 
@@ -109,8 +120,13 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         /// Other form of the <see cref="Description"/>
         /// </summary>
         public virtual string[] AltDescription { get; } = null;
-
+        /// <summary>
+        /// The <see cref="Enums.ImpactLevel"/> of the <see cref="GlobalEvent"/>
+        /// </summary>
         public virtual ImpactLevel ImpactLevel { get; } = ImpactLevel.Medium;
+        /// <summary>
+        /// Check if the <see cref="GlobalEvent"/> is currently active
+        /// </summary>
         public bool IsActive
         {
             get
@@ -126,13 +142,17 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         public static int NumberOfGE { get; set; } = -1;
 
 
-
+        /// <summary>
+        /// Internal subscribe event
+        /// </summary>
         protected sealed override void SubscribeEvents()
         {
             _handler.SubscribeEvents();
             base.SubscribeEvents();
         }
-
+        /// <summary>
+        /// Internal unsubscribe event
+        /// </summary>
         protected sealed override void UnsubscribeEvents()
         {
             _handler.UnsubscribeEvents();
@@ -140,7 +160,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             base.UnsubscribeEvents();
         }
 
-
+        /// <summary>
+        /// Disable this <see cref="GlobalEvent"/>
+        /// </summary>
+        /// <param name="ev"></param>
         protected override void Disable(KEEvents ev)
         {
 
@@ -148,6 +171,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             base.Disable(ev);
         }
 
+
+        /// <summary>
+        /// Choose a/multiple random(s) <see cref="GlobalEvent"/>(s)
+        /// </summary>
         private static void ChooseGlobalEvent()
         {
             if(NumberOfGE == -1)
@@ -165,7 +192,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             
 
         }
-
+        /// <summary>
+        /// Show the active <see cref="GlobalEvent"/> to the <see cref="Player"/>s
+        /// </summary>
         private static void Show()
         {
             
@@ -184,6 +213,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             }
         }
 
+        /// <summary>
+        /// Show the active <see cref="GlobalEvent"/> in the Local Admin
+        /// </summary>
         private static void ShowConsole()
         {
             Log.Info($"Global Event(s) ({_activeGE.Count()}): ");
@@ -194,6 +226,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 
         }
 
+        /// <summary>
+        /// Get all of the description (<see cref="Description"/> and <see cref="AltDescription"/>)
+        /// </summary>
         private List<string> AllDesc
         {
             get
@@ -209,10 +244,8 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 
 
         /// <summary>
-        /// 
+        /// Get the colored description shown to the players
         /// </summary>
-        /// <param name="desc">0 mean the default desc</param>
-        /// <param name="redacted"></param>
         /// <returns></returns>
         private static string ShowText()
         {
@@ -272,7 +305,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             return StringBuilderPool.Pool.ToStringReturn(builder);
         }
 
-
+        /// <summary>
+        /// Roll the chance of the current <see cref="GlobalEvent"/> being redacted
+        /// </summary>
+        /// <returns></returns>
         private bool IsRedacted()
         {
             float chanceRedacted;

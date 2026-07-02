@@ -9,6 +9,9 @@ using System.Linq;
 namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 {
 
+    /// <summary>
+    /// Create an event at the middle of the round
+    /// </summary>
     public abstract class MiddleEvent : KEEvents
     {
         private class MiddleEventHandler
@@ -68,20 +71,30 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
                 } 
             }
         }
-
+        /// <summary>
+        /// The description shown to the player
+        /// </summary>
         public abstract string Description { get; set; }
+        /// <summary>
+        /// The chance to have a <see cref="MiddleEvent"/> in a round
+        /// </summary>
 
         public static float Chance = 37;
         public static TimeSpan MinTimeToActivate = new TimeSpan(0, 10, 0);
         public static TimeSpan MaxTimeToActivate = new TimeSpan(0, 16, 0);
         private static TimeSpan TimeToActivate;
 
+        
         private static HashSet<MiddleEvent> _activeEv = new HashSet<MiddleEvent>();
         private static MiddleEventHandler _handler = new MiddleEventHandler();
 
-
+        /// <summary>
+        /// Active <see cref="MiddleEvent"/> in the round
+        /// </summary>
         public static IReadOnlyCollection<MiddleEvent> ActiveMiddleEvent => _activeEv;
-
+        /// <summary>
+        /// Check if the <see cref="MiddleEvent"/> is currently active
+        /// </summary>
         public bool IsActive
         {
             get
@@ -124,7 +137,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 
             return true;
         }
-
+        /// <summary>
+        /// Executed after the <see cref="MiddleEvent"/> is disabled
+        /// </summary>
+        /// <param name="ev"></param>
         protected override void Disable(KEEvents ev)
         {
             _activeEv.Remove(ev as MiddleEvent);
@@ -132,6 +148,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         }
 
         #region Show
+        /// <summary>
+        /// Show the active <see cref="MiddleEvent"/> to the <see cref="Player"/>s
+        /// </summary>
         private static void Show()
         {
             var random = UnityEngine.Random.Range(0f, 100f);
@@ -143,7 +162,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
                 DisplayHandler.Instance.AddHint(MainPlugin.GEAnnouncement, player, ShowText(), 10).FontSize = 30;
             }
         }
-
+        /// <summary>
+        /// Show the active <see cref="MiddleEvent"/> in the Local Admin
+        /// </summary>
         private static void ShowConsole()
         {
             Log.Info($"Middle Event(s) ({_activeEv.Count()}): ");
@@ -154,7 +175,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             }
 
         }
-
+        /// <summary>
+        /// Get the colored description shown to the players
+        /// </summary>
+        /// <returns></returns>
         private static string ShowText()
         {
             string result = "Middle Event: ";

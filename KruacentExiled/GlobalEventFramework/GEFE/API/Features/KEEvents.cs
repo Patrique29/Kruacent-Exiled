@@ -12,7 +12,9 @@ using System.Reflection;
 
 namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 {
-
+    /// <summary>
+    /// Event in the round (not the c# one)
+    /// </summary>
     public abstract class KEEvents
     {
         #region Abstract Properties
@@ -42,6 +44,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         //private static Dictionary<uint, KEEvents> _idLookup = new Dictionary<uint, KEEvents>();
         private static Dictionary<string, KEEvents> _nameLookup = new Dictionary<string, KEEvents>();
 
+        /// <summary>
+        /// Get all of the <see cref="KEEvents"/> registered
+        /// </summary>
         public static HashSet<KEEvents> List => new HashSet<KEEvents>(_nameLookup.Values);
         #endregion
         #region Events
@@ -53,6 +58,11 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 
         #region Register
 
+        /// <summary>
+        /// Register all of the <see cref="KEEvents"/> in the plugins assembly
+        /// Note: the plugins need to be enabled
+        /// </summary>
+        /// <returns>A <see cref="IEnumerable{KEEvents}"/> of all successfully registered <see cref="KEEvents"/> </returns>
         public static IEnumerable<KEEvents> RegisterAll()
         {
             List<Assembly> assemblies = new List<Assembly>();
@@ -83,6 +93,13 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             
 
         }
+
+
+        /// <summary>
+        /// Register a <see cref="KEEvents"/>
+        /// </summary>
+        /// <exception cref="FailedRegisterException">if the name is already used</exception>
+
         public virtual void Register()
         {
             if (_nameLookup.ContainsKey(Name))
@@ -93,13 +110,19 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             Init();
         }
 
+        /// <summary>
+        /// Init the <see cref="KEEvents"/>
+        /// Note : called after the constructor
+        /// </summary>
         public virtual void Init()
         {
             _nameLookup.Add(Name, this);
             SubscribeEvents();
         }
 
-
+        /// <summary>
+        /// Destroy the <see cref="KEEvents"/> and stop its activity
+        /// </summary>
         public virtual void Destroy()
         {
             _nameLookup.Remove(Name);
@@ -111,6 +134,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         }
 
 
+        /// <summary>
+        /// Destroy all of the <see cref="KEEvents"/> registered
+        /// </summary>
         public static void DestroyAll()
         {
 
@@ -148,7 +174,10 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         }
 
 
-
+        /// <summary>
+        /// Enable a list of <see cref="KEEvents"/>
+        /// </summary>
+        /// <param name="events"></param>
         protected static void EnableEvents(IEnumerable<KEEvents> events)
         {
             foreach (KEEvents ev in events)
@@ -183,7 +212,7 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         }
 
         /// <summary>
-        /// Disable all active <see cref="KEEvents"/>
+        /// Disable a list of <see cref="KEEvents"/>
         /// </summary>
         /// <param name="events"></param>
         protected static void DisableEvents(IEnumerable<KEEvents> events)
