@@ -5,6 +5,7 @@ using KE.Utils.API.Interfaces;
 using KE.Utils.API.Settings.SettingsCategories;
 using System;
 using System.Collections.Generic;
+using System.Security;
 using UserSettings.ServerSpecific;
 
 namespace KruacentExiled.Audio
@@ -12,27 +13,49 @@ namespace KruacentExiled.Audio
     internal class SettingsHandler: IUsingEvents
     {
         private int _idSound = 900;
-        private int _idNoise = 901;
-        private int _idMusic = 902;
 
         public const float DefaultValue = 50;
 
+
+
+
+
         private AudioHandler handler;
         public bool Debug => handler.Debug;
+
+        private List<SettingBase> settings;
+
+        private Dictionary<int, SoundType> ids;
+
         public SettingsHandler(AudioHandler handler)
         {
             this.handler = handler;
             HeaderSetting header = new HeaderSetting(_idSound, "Sound");
-            List<SettingBase> settings = new List<SettingBase>()
-            {
-                CreateSliderSetting(_idNoise,SoundType.Noise,header),
-                CreateSliderSetting(_idMusic,SoundType.Music,header),
-            };
+            ids = new Dictionary<int, SoundType>();
 
-            
+            settings = new List<SettingBase>();
+            int settingid;
+
+            foreach (SoundType type in Enum.GetValues(typeof(SoundType)))
+            {
+                settingid = GetSettingId(type);
+                settings.Add(CreateSliderSetting(settingid, type, header));
+                ids.Add(settingid, type);
+            }
+
+
             new SettingsCategory(header, 1005, settings);
         }
 
+        private int GetSettingId(SoundType type)
+        {
+            return (int) type + _idSound;
+        }
+
+        private bool CheckSetting(int settingId)
+        {
+            return settingId > _idSound && settingId < settings.Count + _idSound;
+        }
 
         public void SubscribeEvents()
         {
@@ -59,31 +82,24 @@ namespace KruacentExiled.Audio
         private void OnSettingValueReceived(Player player, ServerSpecificSettingBase settingBase)
         {
 
-            float volume = 0; 
-            SoundType type = SoundType.Noise;
-            bool flag = false;
-            if (settingBase.SettingId == _idMusic)
-            {
-                volume = GetMusicVolume(player) / 25;
-                type = SoundType.Music;
-                flag = true;
-            }
 
-            if (settingBase.SettingId == _idNoise)
-            {
-                volume = GetNoiseVolume(player) / 25;
-                type = SoundType.Noise;
-                flag = true;
+            int settingId = settingBase.SettingId;
 
-            }
-
-            if (flag)
+            if (CheckSetting(settingId))
             {
+
+                if(!ids.TryGetValue(settingId,out SoundType type))
+                {
+                    throw new Exception("type not found");
+                }
+
+                float volume = GetVolume(player, type);
+
                 KELog.Debug($"change volume {type} to {volume}% ");
 
                 MainPlugin.AudioHandler.ChangeVolume(player, volume, type);
             }
-            
+
 
         }
 
@@ -92,18 +108,26 @@ namespace KruacentExiled.Audio
             return new SliderSetting(id, type.ToString(), 0, 100, DefaultValue, header:header);
         }
 
-        internal float GetNoiseVolume(Player player)
-        {
-            if (!SettingBase.TryGetSetting<SliderSetting>(player, _idNoise, out var setting)) return DefaultValue;
-            return setting.SliderValue;
-        }
 
-        internal float GetMusicVolume(Player player)
+        public float GetVolume(Player player,SoundType type)
         {
-            if (!SettingBase.TryGetSetting<SliderSetting>(player, _idMusic, out var setting)) return DefaultValue;
-            return setting.SliderValue;
-        }
+            int id = GetSettingId(type);
 
+            float volume;
+
+            if (SettingBase.TryGetSetting<SliderSetting>(player, id, out var setting))
+            {
+                volume = setting.SliderValue;
+            }
+            else
+            {
+                volume = DefaultValue;
+            }
+            volume /= 25;
+
+            return volume;
+
+        }
 
     }
 }

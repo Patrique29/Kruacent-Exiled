@@ -8,76 +8,42 @@ namespace KruacentExiled.Audio
 {
     public class AudioCollection
     {
-
-
-        private HashSet<AudioPlayer> noise;
-        private HashSet<AudioPlayer> music;
-
-        //private Dictionary<SoundType, HashSet<AudioPlayer>> audioPlayers;
+        private HashSet<AudioType> players;
 
         public AudioCollection()
         {
-            
-
-            noise = new HashSet<AudioPlayer>();
-            music = new HashSet<AudioPlayer>();
+            players = new HashSet<AudioType>();
+            foreach(SoundType type in Enum.GetValues(typeof(SoundType)))
+            {
+                players.Add(new AudioType(type));
+            }
         }
 
 
         public void AddPlayer(AudioPlayer player,SoundType type)
         {
-            if(type == SoundType.Noise)
+            foreach(AudioType audioType in players)
             {
-                noise.Add(player);
-            }
-
-            if(type == SoundType.Music)
-            {
-                music.Add(player);
+                audioType.TryAdd(player, type);
             }
         }
 
         public void ChangeVolume(float newVolume, SoundType type)
         {
-            if(type == SoundType.Noise)
-            {
-                ChangeVolume(noise, newVolume);
-            }
 
-            if(type == SoundType.Music)
+            foreach (AudioType audioType in players)
             {
-                ChangeVolume(music, newVolume);
+                audioType.TryChangeVolume(newVolume, type);
             }
         }
 
-
-        private void ChangeVolume(HashSet<AudioPlayer> players, float newVolume)
-        {
-            foreach(AudioPlayer player in players)
-            {
-                foreach(AudioClipPlayback clip in player.ClipsById.Values)
-                {
-                    clip.Volume = newVolume;
-                }
-            }
-        }
 
         public void DestroyAudioPlayer(AudioPlayer player)
         {
-            foreach (AudioPlayer audio in noise.ToList())
-            {
-                if(audio == player)
-                {
-                    noise.Remove(player);
-                }
-            }
 
-            foreach (AudioPlayer audio in music.ToList())
+            foreach (AudioType audioType in players)
             {
-                if (audio == player)
-                {
-                    music.Remove(player);
-                }
+                audioType.DestroyAudioPlayer(player);
             }
         }
 

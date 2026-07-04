@@ -9,6 +9,7 @@ namespace KruacentExiled.Audio
     public enum SoundType
     {
         Noise,
-        Music
+        Music,
+        SoundBoard
     }
 }

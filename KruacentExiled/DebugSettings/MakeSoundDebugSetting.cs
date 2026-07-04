@@ -59,7 +59,7 @@ namespace KruacentExiled.DebugSettings
             {
                 if(button.Base == settingBase)
                 {
-                    MainPlugin.AudioHandler.PlayAtPlayerPosition(player, type, clipName);
+                    MainPlugin.AudioHandler.Play(player, type, clipName);
                     Log.Info("playing " + clipName);
                 }
 

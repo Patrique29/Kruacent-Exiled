@@ -41,20 +41,7 @@ namespace KruacentExiled.Audio
 
         private float GetVolume(Player player, SoundType soundType)
         {
-            float volume;
-
-            if(soundType == SoundType.Music)
-            {
-                volume = settingsHandler.GetMusicVolume(player);
-            }
-            else
-            {
-                volume = settingsHandler.GetNoiseVolume(player);
-            }
-
-            volume /= 25;
-
-            return volume;
+            return settingsHandler.GetVolume(player,soundType);
         }
 
 
@@ -103,7 +90,7 @@ namespace KruacentExiled.Audio
             Dictionary<Player, AudioClipPlayback> result = new Dictionary<Player, AudioClipPlayback>();
             foreach(Player player in players)
             {
-                result.Add(player, PlayAtPosition(player, soundType, clipName, position,maxDistance));
+                result.Add(player, Play(player, soundType, clipName, position,maxDistance));
             }
 
             return result;
@@ -199,41 +186,19 @@ namespace KruacentExiled.Audio
             return audioPlayer.AddClip(clipName);
         }
         /// <summary>
-        /// Play a clip at a fixed position
+        /// Play a clip at a fixed position to a single <see cref="Player"/>
         /// </summary>
-        /// <param name="player"><see cref="Player"/> who can hear the clip</param>
+        /// <param name="listener">the <see cref="Player"/> who can hear the clip</param>
         /// <param name="soundType"></param>
         /// <param name="clipName"></param>
         /// <param name="gameObject"></param>
         /// <param name="maxDistance"></param>
         /// <returns>return null if the speaker couldn't be created </returns>
-        public AudioClipPlayback Play(Player player,SoundType soundType,string clipName,Vector3 position, float maxDistance = 20)
+        public AudioClipPlayback Play(Player listener, SoundType soundType,string clipName,Vector3 position, float maxDistance = 20)
         {
-            Log.Info($"play position ({position}) {player.Nickname} [{soundType}] ({clipName})");
-            AudioPlayer audioPlayer = CreateOrGet(player, soundType, clipName);
-            float volume = GetVolume(player, soundType);
-
             GameObject gameObject = new GameObject();
             gameObject.transform.position = position;
-
-            Speaker speaker = CreateSpeaker(audioPlayer, soundType, volume);
-
-            if (speaker == null) return null;
-
-            speaker.transform.SetParent(gameObject.transform);
-            speaker.transform.localPosition = Vector3.zero;
-
-            speaker.MaxDistance = maxDistance;
-
-            if (!audioPlayers.ContainsKey(player))
-            {
-                audioPlayers[player] = new AudioCollection();
-            }
-
-
-            audioPlayers[player].AddPlayer(audioPlayer, soundType);
-
-            return audioPlayer.AddClip(clipName);
+            return Play(listener, soundType, clipName, gameObject, maxDistance);
         }
 
 
