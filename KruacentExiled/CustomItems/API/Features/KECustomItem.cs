@@ -169,7 +169,6 @@ namespace KruacentExiled.CustomItems.API.Features
             
 
 
-            Log.Debug($"spawning {Name}");
             HashSet<SpawnPoint> spawns = spawnPoints.ToHashSet();
             uint num = 0;
             foreach (SpawnPoint spawnpoint in spawnPoints.Where(sp => sp is RoomSpawnPoint))
@@ -182,12 +181,12 @@ namespace KruacentExiled.CustomItems.API.Features
                 spawns.Remove(spawnpoint);
                 RoomSpawnPoint room = spawnpoint as RoomSpawnPoint;
                 ItemSpawn spawn = UseRandomPose(room.Room);
-                Log.Debug(room.Room+ " : "+ UsablePoses.Count(p => p.roomType == room.Room));
                 Log.Debug($"spawning {Name} in {room.Room}" );
+                Log.Debug($"remaining spawn position in {room.Room} = {UsablePoses.Count(p => p.roomType == room.Room)}");
 
                 if (spawn != null)
                 {
-                    Log.Debug($"spawning custom pos");
+                    //Log.Debug($"spawning custom pos");
                     pickup = Spawn(spawn.Position);
                 }
                 else

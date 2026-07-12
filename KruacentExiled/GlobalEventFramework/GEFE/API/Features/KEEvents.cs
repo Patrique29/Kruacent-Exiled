@@ -231,8 +231,9 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
                     {
 
                         weightedPool.Add(ge);
-                        Log.Debug($"gettochoose : {ge.Name} ");
+                        
                     }
+                    Log.Debug($"[{ge.Name}] weight : {ge.WeightedChance} ");
                 }
             }
 

@@ -299,6 +299,7 @@ namespace KruacentExiled.Map
         public bool TurretEnabled { get; set; } = false;
         public bool EasterEggEnabled { get; set; } = true;
         public bool BlackoutNDoorEnabled { get; set; } = true;
+        public bool BlackoutNDoorWeightVerbose { get; set; } = false;
 
 
     }

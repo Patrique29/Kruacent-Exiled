@@ -79,10 +79,10 @@ namespace KruacentExiled.CustomItems.API.Features.SpawnPoints
             {
                 return null;
             }
-            Log.Debug("count before =" + UsablePoses.Count(r => r.roomType == roomType));
+            //Log.Debug("count before =" + UsablePoses.Count(r => r.roomType == roomType));
             ItemSpawn result = UsablePoses.GetRandomValue(r => r.roomType == roomType);
             usablePoses.Remove(result);
-            Log.Debug("count after =" + UsablePoses.Count(r => r.roomType == roomType));
+            //Log.Debug("count after =" + UsablePoses.Count(r => r.roomType == roomType));
             return result;
 
         }
