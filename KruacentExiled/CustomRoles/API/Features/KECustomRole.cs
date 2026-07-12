@@ -78,9 +78,11 @@ namespace KruacentExiled.CustomRoles.API.Features
             {
                 cr.CurrentNumberOfSpawn = 0;
             }
-            
+            RareCustomRoleSpawned = false;
         }
 
+
+        public static bool RareCustomRoleSpawned { get; private set; } = false;
 
         protected abstract Dictionary<string, Dictionary<string, string>> SetTranslation();
 
@@ -225,7 +227,14 @@ namespace KruacentExiled.CustomRoles.API.Features
                 .Append("</color>")
                 .Append('_')
                 .Append(name[1])
-                .Append("] spawn chance:")
+                .Append(']');
+
+            if(this is IRareCustomRole)
+            {
+                sb.Append(" RCR");
+            }
+
+            sb.Append(" spawn chance:")
                 .Append(SpawnChance)
                 .Append('%');
 
@@ -423,6 +432,19 @@ namespace KruacentExiled.CustomRoles.API.Features
                 Log.Debug(Name + ": role cancelled by plugin");
                 return;
             }
+
+            if(this is IRareCustomRole rare)
+            {
+                if (RareCustomRoleSpawned)
+                {
+                    Log.Debug("rare custom role already spawned");
+                    return;
+                }
+
+                RareCustomRoleSpawned = true;
+
+            }
+
 
             foreach(KECustomRole cr in Get(player))
             {
