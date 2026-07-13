@@ -659,6 +659,7 @@ namespace KruacentExiled.CustomRoles.API.Features
         /// <returns>true if the player can have this CR ; false otherwise</returns>
         public virtual bool IsAvailable(Player player)
         {
+            if (this is IRareCustomRole && RareCustomRoleSpawned) return false;
             if (CurrentNumberOfSpawn >= Limit) return false;
             return RoleCheck(player.Role);
         }
