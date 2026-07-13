@@ -331,7 +331,12 @@ namespace KruacentExiled.CustomRoles.API.Features
 
 
 
-
+        /// <summary>
+        /// Get the text that's shown to the <see cref="Player"/>.<br/>
+        /// See also <see cref="ShowCustomRole(VerifiedEventArgs)"/>
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
         public static string CurrentRole(Player player)
         {
             StringBuilder sb = StringBuilderPool.Pool.Get();
@@ -383,6 +388,11 @@ namespace KruacentExiled.CustomRoles.API.Features
             return result;
         }
 
+        /// <summary>
+        /// Get the <see cref="Player"/> that the spectator is spectating
+        /// </summary>
+        /// <param name="spectator"></param>
+        /// <returns></returns>
         private static Player GetSpectatingPlayer(Player spectator)
         {
 
@@ -414,7 +424,11 @@ namespace KruacentExiled.CustomRoles.API.Features
 
 
 
-        #region addrole     
+        #region addrole
+        /// <summary>
+        /// Give the <see cref="KECustomRole"/> to a <see cref="Player"/>
+        /// </summary>
+        /// <param name="player"></param>
         public override void AddRole(Player player)
         {
             Player player2 = player;
@@ -656,7 +670,7 @@ namespace KruacentExiled.CustomRoles.API.Features
         /// 
         /// </summary>
         /// <param name="player"></param>
-        /// <returns>true if the player can have this CR ; false otherwise</returns>
+        /// <returns>true if the player can have this <see cref="KECustomRole"/> naturally ; false otherwise</returns>
         public virtual bool IsAvailable(Player player)
         {
             if (this is IRareCustomRole && RareCustomRoleSpawned) return false;
@@ -664,7 +678,9 @@ namespace KruacentExiled.CustomRoles.API.Features
             return RoleCheck(player.Role);
         }
 
-
+        /// <summary>
+        /// Check if the role is available to get this <see cref="KECustomRole"/>
+        /// </summary>
         public virtual bool RoleCheck(RoleTypeId role)
         {
             return Role == role;
@@ -672,13 +688,19 @@ namespace KruacentExiled.CustomRoles.API.Features
 
 
         /// <summary>
-        /// The chance of having this role, NOT the chance to have a role
+        /// The chance of having this role.<br/>
+        /// See also <see cref="Chance"/>
         /// </summary>
         public new virtual float SpawnChance { get; set; } = 100;
 
-        public static new KECustomRole Get(string fullinternalname)
+        /// <summary>
+        /// Get a <see cref="KECustomRole"/> by its name <see cref="Name"/>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static new KECustomRole Get(string name)
         {
-            return stringLookupTable[fullinternalname];
+            return stringLookupTable[name];
         }
 
 
@@ -688,17 +710,28 @@ namespace KruacentExiled.CustomRoles.API.Features
             return customrole != null;
         }
 
+        /// <summary>
+        /// Get a <see cref="KECustomRole"/> by its name and <see cref="RoleTypeId"/>
+        /// </summary>
+        /// <param name="roleid"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static KECustomRole Get(RoleTypeId roleid,string name)
         {
             return Get(roleid.ToString().ToUpper() + "_" + name);
         }
-        public static bool Get(RoleTypeId roleid, string name, out KECustomRole customrole)
+        public static bool TryGet(RoleTypeId roleid, string name, out KECustomRole customrole)
         {
             customrole = Get(roleid, name);
             return customrole != null;
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns>true if the Player have a <see cref="KECustomRole"/> ; false otherwise</returns>
         public static bool HasCustomRole(Player player)
         {
             if (player is null) return false;
@@ -715,6 +748,12 @@ namespace KruacentExiled.CustomRoles.API.Features
 
         }
 
+        /// <summary>
+        /// Get all <see cref="KECustomRole"/> of a <see cref="Player"/>.<br/>
+        /// Note : A Player should only have one KECustomRole, but can technically have multiple
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
         public static IEnumerable<KECustomRole> Get(Player player)
         {
             List<KECustomRole> cr = new List<KECustomRole>();
@@ -728,7 +767,11 @@ namespace KruacentExiled.CustomRoles.API.Features
             return cr;
         }
 
-
+        /// <summary>
+        /// Get a <see cref="KECustomRole"/> using its type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T Get<T>() where T : KECustomRole
         {
             return typeLookupTable[typeof(T)] as T;
@@ -738,6 +781,7 @@ namespace KruacentExiled.CustomRoles.API.Features
 
         /// <summary>
         /// The chance to get a <see cref="KECustomRole"/> at the start or a respawn
+        /// See also <see cref="SpawnChance"/>
         /// </summary>
         public static float Chance
         {
@@ -768,11 +812,19 @@ namespace KruacentExiled.CustomRoles.API.Features
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns>A <see cref="DictionaryPool{TKey, TValue}"/> of all <see cref="KECustomRole"/> available to the <see cref="Player"/> and its chance</returns>
         public static Dictionary<KECustomRole, float> GetAvailableCustomRole(Player player)
         {
             return Registered.Where(cr => cr.IsAvailable(player)).ToDictionary(c => c, c => c.SpawnChance);
         }
-
+        /// <summary>
+        /// Give a random <see cref="KECustomRole"/> to a <see cref="Player"/>. <br/>
+        /// Does account for the <see cref="Chance"/>
+        /// </summary>
         public static void GiveRandomRole(Player player)
         {
             if (player == null)
@@ -797,6 +849,10 @@ namespace KruacentExiled.CustomRoles.API.Features
         }
 
         
+        /// <summary>
+        /// Give random <see cref="KECustomRole"/> to the list of <see cref="Player"/>. <br/>
+        /// Does account for the <see cref="Chance"/>
+        /// </summary>
         public static void GiveRandomRole(IEnumerable<Player> players)
         {
             foreach (Player p in players)

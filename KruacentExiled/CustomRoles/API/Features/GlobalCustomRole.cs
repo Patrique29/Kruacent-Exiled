@@ -133,11 +133,6 @@ namespace KruacentExiled.CustomRoles.API.Features
         //    return StringBuilderPool.Pool.ToStringReturn(sb);
         //}
 
-        public override bool IsAvailable(Player player)
-        {
-            if (CurrentNumberOfSpawn >= Limit) return false;
-            return SideClass.Get(player.Role.Side) == Side;
-        }
 
         public override bool RoleCheck(RoleTypeId role)
         {
