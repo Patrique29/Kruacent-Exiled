@@ -12,7 +12,7 @@ using KE.Utils.API.Features;
 using KruacentExiled.CustomItems.API.Events;
 using System.Collections.Generic;
 using System.Linq;
-using static KruacentExiled.CustomItems.API.Features.SpawnPoints.PoseRoomSpawnPointHandler;
+using static KruacentExiled.CustomSpawnPoint.PoseRoomSpawnPointHandler;
 
 namespace KruacentExiled.CustomItems.API.Features
 {

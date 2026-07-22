@@ -10,7 +10,6 @@ using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.Feeds;
 using KE.Utils.API.Translations;
 using KruacentExiled.CustomItems;
-using KruacentExiled.CustomItems.API.Features.SpawnPoints;
 using KruacentExiled.CustomItems.API.Interface;
 using PlayerRoles.SpawnData;
 using System;
@@ -19,7 +18,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
-using static KruacentExiled.CustomItems.API.Features.SpawnPoints.PoseRoomSpawnPointHandler;
+using static KruacentExiled.CustomSpawnPoint.PoseRoomSpawnPointHandler;
 using Pickup = Exiled.API.Features.Pickups.Pickup;
 
 namespace KruacentExiled.CustomItems.API.Features
@@ -191,8 +190,25 @@ namespace KruacentExiled.CustomItems.API.Features
                 }
                 else
                 {
-                    Log.Error($"can't spawn ({Name}) in custom ({room.Room})");
-                    pickup = Spawn(spawnpoint.Position);
+                    if (spawnpoint is LockerSpawnPoint { UseChamber: true } lockerSpawnPoint)
+                    {
+                        try
+                        {
+                            lockerSpawnPoint.GetSpawningInfo(out var _, out var chamber, out var position);
+                            pickup = Spawn(position);
+                            chamber?.AddItem(pickup);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error($"CustomItem {Name}(failed to spawn: {ex.Message})");
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Log.Error($"can't spawn ({Name}) in custom ({room.Room})");
+                        pickup = Spawn(spawnpoint.Position);
+                    }
                 }
 
 
@@ -205,7 +221,7 @@ namespace KruacentExiled.CustomItems.API.Features
                     
             }
 
-            return base.Spawn(spawns, limit-num);
+            return num;
         }
 
 

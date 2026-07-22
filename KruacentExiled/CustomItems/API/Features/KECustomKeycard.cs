@@ -9,7 +9,6 @@ using Exiled.API.Features.Spawn;
 using Exiled.API.Interfaces.Keycards;
 using Exiled.CustomItems.API.Features;
 using InventorySystem.Items.Keycards;
-using KruacentExiled.CustomItems.API.Features.SpawnPoints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using YamlDotNet.Core.Tokens;
-using static KruacentExiled.CustomItems.API.Features.SpawnPoints.PoseRoomSpawnPointHandler;
+using static KruacentExiled.CustomSpawnPoint.PoseRoomSpawnPointHandler;
 
 namespace KruacentExiled.CustomItems.API.Features
 {

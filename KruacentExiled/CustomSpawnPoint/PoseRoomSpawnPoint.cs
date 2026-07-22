@@ -1,16 +1,12 @@
 ﻿using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
-using Exiled.API.Features.Toys;
-using MEC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace KruacentExiled.CustomItems.API.Features.SpawnPoints
+namespace KruacentExiled.CustomSpawnPoint
 {
     public static class PoseRoomSpawnPointHandler
     {
@@ -23,7 +19,6 @@ namespace KruacentExiled.CustomItems.API.Features.SpawnPoints
             //item rotation
             public readonly Quaternion localrotation;
 
-            
             /// <summary>
             /// don't use the corridor
             /// </summary>
@@ -32,6 +27,7 @@ namespace KruacentExiled.CustomItems.API.Features.SpawnPoints
             /// <param name="rotation"></param>
             public ItemSpawn(RoomType roomType,Vector3 position,Quaternion rotation)
             {
+
                 this.roomType = roomType;
                 localposition = position;
                 localrotation = rotation;
@@ -68,9 +64,16 @@ namespace KruacentExiled.CustomItems.API.Features.SpawnPoints
             }
         }
 
-        public static readonly HashSet<ItemSpawn> AllPoses = new HashSet<ItemSpawn>();
-        private static HashSet<ItemSpawn> usablePoses = new HashSet<ItemSpawn>();
+        public static readonly HashSet<ItemSpawn> AllPoses;
+        private static HashSet<ItemSpawn> usablePoses;
         public static IReadOnlyCollection<ItemSpawn> UsablePoses => usablePoses;
+
+
+        static PoseRoomSpawnPointHandler()
+        {
+            usablePoses = new HashSet<ItemSpawn>();
+            AllPoses = new HashSet<ItemSpawn>();
+        }
 
         public static ItemSpawn UseRandomPose(RoomType roomType)
         {
@@ -79,33 +82,57 @@ namespace KruacentExiled.CustomItems.API.Features.SpawnPoints
             {
                 return null;
             }
-            //Log.Debug("count before =" + UsablePoses.Count(r => r.roomType == roomType));
+            Log.Debug("count before =" + UsablePoses.Count(r => r.roomType == roomType));
             ItemSpawn result = UsablePoses.GetRandomValue(r => r.roomType == roomType);
             usablePoses.Remove(result);
-            //Log.Debug("count after =" + UsablePoses.Count(r => r.roomType == roomType));
+            Log.Debug("count after =" + UsablePoses.Count(r => r.roomType == roomType));
             return result;
 
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="room"></param>
-        /// <param name="poses"> add the poses should be from a zero rotation room </param>
-        public static void AddRoomPoses(HashSet<ItemSpawn> poses)
+        public static void AddRoomPose(HashSet<ItemSpawn> poses)
         {
 
             foreach(ItemSpawn item in poses)
             {
-                AllPoses.Add(item);
-                usablePoses.Add(item);
+                AddRoomPose(item);
             }
 
         }
 
+        public static void AddRoomPose(ItemSpawn itemspawn)
+        {
+            AllPoses.Add(itemspawn);
+            usablePoses.Add(itemspawn);
+        }
+
+
+        public static void AddRoomPose(Dictionary<RoomType,List<Vector3>> roomLocalPosition)
+        {
+            foreach(var kvp in roomLocalPosition)
+            {
+                foreach (Vector3 position in kvp.Value)
+                {
+                    ItemSpawn itemSpawn = new ItemSpawn(kvp.Key, position, Quaternion.identity);
+                    AddRoomPose(itemSpawn);
+                }
+
+                
+            }
+        }
+
+        public static IEnumerable<ItemSpawn> GetPoseInRoom(RoomType room)
+        {
+            return AllPoses.Where(p => p.roomType == room);
+        }
+
         public static void Reset()
         {
-            usablePoses = AllPoses.ToHashSet();
+            usablePoses.Clear();
+            foreach(ItemSpawn spawn in AllPoses)
+            {
+                usablePoses.Add(spawn);
+            }
         }
 
         
