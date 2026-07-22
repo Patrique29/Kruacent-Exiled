@@ -23,7 +23,7 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
         ///<inheritdoc/>
         public override string Description { get; } = "THE WORLD REVOLVING";
         ///<inheritdoc/>
-        public override int WeightedChance => 2;
+        public override int WeightedChance => 0; //2
         public override ImpactLevel ImpactLevel => ImpactLevel.Medium;
 
 
@@ -93,18 +93,5 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
             }
         }
 
-
-
-
-
-
-
-        //public IEnumerator<float> Spin()
-        //{
-
-
-
-
-        //}
     }
 }
