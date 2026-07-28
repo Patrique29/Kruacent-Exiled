@@ -20,6 +20,8 @@ namespace KruacentExiled
 
         public static AudioHandler AudioHandler { get; private set; }
 
+        private TestEvent TestEvent = null;
+
         public override void OnEnabled()
         {
             Instance = this;
@@ -62,9 +64,15 @@ namespace KruacentExiled
 
             }
 
-
             AudioHandler = new AudioHandler(Config.Debug);
             AudioHandler.SubscribeEvents();
+
+            if (Config.Debug)
+            {
+                TestEvent = new TestEvent();
+                TestEvent.SubscribeEvents();
+            }
+            
 
             base.OnEnabled();
         }
@@ -79,11 +87,13 @@ namespace KruacentExiled
                 Log.Info(plugin.Name + " has been disabled!");
 
             }
-
+            TestEvent?.UnsubscribeEvents();
             AudioHandler.UnsubscribeEvents();
+
 
             Instance = null;
             AudioHandler = null;
+            TestEvent = null;
 
             base.OnDisabled();
         }
