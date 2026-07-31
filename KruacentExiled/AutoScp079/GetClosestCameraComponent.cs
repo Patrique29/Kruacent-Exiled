@@ -19,12 +19,21 @@ namespace KruacentExiled.AutoScp079
         {
             _player = player;
             _comp = comp;
+            Paused = false;
         }
+
+        public bool Paused { get; set; }
 
 
 
         private void Update()
         {
+
+            if(Paused)
+            {
+                return;
+            }
+
             _cooldown -= Time.deltaTime;
             if(_cooldown > 0)
             {
@@ -37,9 +46,9 @@ namespace KruacentExiled.AutoScp079
 
             Camera closest = Helper.GetClosestCameraInSameRoom(_player);
 
-            KELog.Debug("closest="+closest.Name);
-            KELog.Debug("curr="+ _comp.CurrentCamera.Name);
-            KELog.Debug("different?="+ (closest != _comp.CurrentCamera));
+            //KELog.Debug("closest="+closest.Name);
+            //KELog.Debug("curr="+ _comp.CurrentCamera.Name);
+            //KELog.Debug("different?="+ (closest != _comp.CurrentCamera));
 
 
             if(closest != _comp.CurrentCamera)

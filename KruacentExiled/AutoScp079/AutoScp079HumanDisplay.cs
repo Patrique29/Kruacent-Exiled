@@ -1,4 +1,5 @@
-﻿using Exiled.API.Features.Pools;
+﻿using Exiled.API.Features;
+using Exiled.API.Features.Pools;
 using HintServiceMeow.Core.Enum;
 using HintServiceMeow.Core.Models.Hints;
 using KE.Utils.API.Displays.DisplayMeow;
@@ -14,7 +15,7 @@ namespace KruacentExiled.AutoScp079
 {
     public class AutoScp079HumanDisplay
     {
-        private class Placement : HintPosition
+        private class QueuePlacement : HintPosition
         {
             public override float Xposition => 0;
 
@@ -22,50 +23,81 @@ namespace KruacentExiled.AutoScp079
 
             public override HintAlignment HintAlignment => HintAlignment.Center;
         }
+        private class CurrentCameraPlacement : HintPosition
+        {
+            public override float Xposition => 0;
+
+            public override float Yposition => 200;
+
+            public override HintAlignment HintAlignment => HintAlignment.Center;
+        }
 
         private Auto079NPC _comp;
 
-        public readonly HintPosition hintPosition = new Placement();
-        private AbstractHint hint;
-        private StringBuilder sb;
+        public readonly HintPosition queue = new QueuePlacement();
+        public readonly HintPosition currentCamera = new CurrentCameraPlacement();
+        private AbstractHint queuehint;
+        private AbstractHint currentCamerahint;
+        private StringBuilder sbQueue;
+        private StringBuilder sbCurrentCamera;
 
         public AutoScp079HumanDisplay(Auto079NPC comp)
         {
             _comp = comp;
             CreateHints();
-            sb = StringBuilderPool.Pool.Get();
+            sbQueue = StringBuilderPool.Pool.Get();
+            sbCurrentCamera = StringBuilderPool.Pool.Get();
         }
 
         public void CreateHints()
         {
-            hint = DisplayHandler.Instance.CreateAuto(_comp.HumanPlayer, (args) => Text(), hintPosition.HintPlacement, HintSyncSpeed.Fastest);
+            queuehint = DisplayHandler.Instance.CreateAuto(_comp.HumanPlayer, (args) => TextQueue(), queue.HintPlacement, HintSyncSpeed.Fastest);
+            currentCamerahint = DisplayHandler.Instance.CreateAuto(_comp.HumanPlayer, (args) => TextCurrentCamera(), currentCamera.HintPlacement, HintSyncSpeed.Fastest);
         }
 
 
 
-        private string Text()
+        private string TextQueue()
         {
-            sb.Clear();
+            sbQueue.Clear();
             JobQueue queue = _comp.JobTracker.Queue;
 
-            sb.Append(queue.QueueSize);
+            sbQueue.Append(queue.QueueSize);
 
             if(queue.QueueSize > 0)
             {
-                sb.Append(_comp.JobTracker.Queue.Peek().ToString());
+                sbQueue.Append(_comp.JobTracker.Queue.Peek().ToString());
             }
 
 
-            return sb.ToString();
+            return sbQueue.ToString();
+        }
+
+        private string TextCurrentCamera()
+        {
+            sbCurrentCamera.Clear();
+            Camera current = _comp.CurrentCamera;
+            
+            if(current == null)
+            {
+                return " ";
+            }
 
 
+            sbCurrentCamera.Append(current.Name);
+
+
+
+            return sbCurrentCamera.ToString();
         }
 
 
         public void Destroy()
         {
-            StringBuilderPool.Pool.Return(sb);
-            DisplayHandler.Instance.RemoveHint(_comp.HumanPlayer, hint);
+            StringBuilderPool.Pool.Return(sbQueue);
+            StringBuilderPool.Pool.Return(sbCurrentCamera);
+            DisplayHandler.Instance.RemoveHint(_comp.HumanPlayer, queuehint);
+            DisplayHandler.Instance.RemoveHint(_comp.HumanPlayer, currentCamerahint);
         }
     }
 

@@ -10,15 +10,16 @@ namespace KruacentExiled.AutoScp079.Jobs
 {
     public abstract class Job : IEquatable<Job>
     {
-        public bool Started { get; private set; }
+        public bool Started { get; set; }
         public bool IsFinished { get; private set; }
+        public bool IsCancelled { get; private set; }
 
         public Auto079NPC Auto079NPC { get; internal set; }
 
         protected abstract void OnUpdate();
 
 
-        protected virtual void OnStart()
+        public virtual void OnStart()
         {
 
         }
@@ -28,6 +29,12 @@ namespace KruacentExiled.AutoScp079.Jobs
 
         }
         protected virtual void OnCleanup()
+        {
+
+        }
+
+
+        protected virtual void OnCancel()
         {
 
         }
@@ -45,12 +52,17 @@ namespace KruacentExiled.AutoScp079.Jobs
             }
         }
 
+        public void Cancel()
+        {
+            IsCancelled = true;
+            OnCancel();
+        }
 
         public void EndJob()
         {
             IsFinished = true;
             OnFinished();
-            KELog.Debug("ending job " + GetType().Name);
+            //KELog.Debug("ending job " + GetType().Name);
 
         }
 
@@ -59,6 +71,7 @@ namespace KruacentExiled.AutoScp079.Jobs
             OnCleanup();
             Started = false;
             IsFinished = false;
+            IsCancelled = false;
             Auto079NPC = null;
         }
 

@@ -36,9 +36,16 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
         }
 
 
-        protected override void OnStart()
+        public override void OnStart()
         {
-            KELog.Debug("switching camera to " + Objective.Name + " curr = " + Auto079NPC.CurrentCamera.Name);
+            //KELog.Debug("switching camera to " + Objective.Name);
+
+
+            if(Auto079NPC.CurrentCamera != null)
+            {
+                //KELog.Debug("curr = " + Auto079NPC.CurrentCamera.Name);
+            }
+            
 
             if (Auto079NPC.CurrentCamera != Objective)
             {
@@ -70,7 +77,7 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
         public override string ToString()
         {
-            return "Switch to " + Objective?.Name;
+            return $"Switch to {Objective?.Name} started? {Started} finished? {IsFinished} cancelled? {IsCancelled} ";
         }
     }
 }

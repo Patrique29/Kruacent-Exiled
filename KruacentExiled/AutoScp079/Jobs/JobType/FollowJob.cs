@@ -15,7 +15,7 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
 
 
-        protected override void OnStart()
+        public override void OnStart()
         {
             
         }

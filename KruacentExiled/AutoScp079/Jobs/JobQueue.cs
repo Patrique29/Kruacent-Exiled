@@ -23,14 +23,14 @@ namespace KruacentExiled.AutoScp079.Jobs
         {
             if (QueueSize > 0 && job.Equals(_lastadded))
             {
-                KELog.Debug("same job added "+ job.ToString());
+                //KELog.Debug("same job added "+ job.ToString());
                 return;
             }
 
 
             _jobs.Enqueue(job);
             _lastadded = job;
-            KELog.Debug("adding job");
+            //KELog.Debug("adding job");
         }
 
         
@@ -47,7 +47,7 @@ namespace KruacentExiled.AutoScp079.Jobs
 
             job.Tick();
 
-            if (job.IsFinished)
+            if (job.IsFinished || job.IsCancelled)
             {
                 job.Cleanup();
                 _jobs.Dequeue();

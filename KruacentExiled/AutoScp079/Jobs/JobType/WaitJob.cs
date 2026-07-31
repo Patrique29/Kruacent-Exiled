@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace KruacentExiled.AutoScp079.Jobs.JobType
 {
-    internal sealed class JobWait : Job
+    internal sealed class WaitJob : Job
     {
 
         private float _timeWaiting;
@@ -17,9 +17,9 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
 
 
-        public static JobWait CreateJob(float timeWaiting)
+        public static WaitJob CreateJob(float timeWaiting)
         {
-            JobWait job = Pool<JobWait>.Get();
+            WaitJob job = Pool<WaitJob>.Get();
 
 
             job._timeWaiting = timeWaiting;
@@ -27,7 +27,7 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
         }
 
-        public JobWait()
+        public WaitJob()
         {
             
         }
@@ -45,17 +45,17 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
         protected override void OnFinished()
         {
-            KELog.Debug("finished waiting job");
+            //KELog.Debug("finished waiting job");
         }
-        protected override void OnStart()
+        public override void OnStart()
         {
-            KELog.Debug("starting waiting job : waiting for "+ _timeWaiting + " seconds");
+            //KELog.Debug("starting waiting job : waiting for "+ _timeWaiting + " seconds");
             _remaining = _timeWaiting;
         }
 
         protected override void OnCleanup()
         {
-            Pool<JobWait>.Return(this);
+            Pool<WaitJob>.Return(this);
         }
 
         public override string ToString()

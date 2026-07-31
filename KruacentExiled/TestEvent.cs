@@ -47,11 +47,11 @@ namespace KruacentExiled
             firstPlayer.Role.Set(PlayerRoles.RoleTypeId.Scp049);
 
 
-            Auto079NPC = new Auto079NPC(firstPlayer);
+            Auto079NPC = new Auto079NPC(firstPlayer,true);
 
 
-            Auto079NPC.JobTracker.AddJob(JobWait.CreateJob(5));
-            
+
+            Npc test = Npc.Spawn("testping", PlayerRoles.RoleTypeId.ClassD,position:firstPlayer.Position);
 
 
             //SwitchCameraJob job = SwitchCameraJob.CreateJob(Camera.Get(Exiled.API.Enums.CameraType.LczCellblockEntry));
