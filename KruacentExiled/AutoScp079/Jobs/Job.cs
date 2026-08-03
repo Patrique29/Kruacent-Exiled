@@ -16,7 +16,10 @@ namespace KruacentExiled.AutoScp079.Jobs
 
         public Auto079NPC Auto079NPC { get; internal set; }
 
-        protected abstract void OnUpdate();
+        protected virtual void OnUpdate()
+        {
+
+        }
 
 
         public virtual void OnStart()

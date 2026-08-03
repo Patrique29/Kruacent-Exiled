@@ -124,5 +124,31 @@ namespace KruacentExiled.AutoScp079.Jobs
             _queue.Add(job);
         }
 
+
+        public Job CurrentJob
+        {
+            get
+            {
+                Job result = null;
+                if (_queue.QueueSize > 0)
+                {
+                    result = _queue.Peek();
+                }
+
+                return result;
+            }
+        }
+
+        public void CancelCurrentJob()
+        {
+            if (_player == null)
+            {
+                return;
+            }
+
+            CurrentJob?.Cancel();
+            
+        }
+
     }
 }

@@ -1,7 +1,12 @@
-﻿using Exiled.API.Enums;
+﻿using CustomPlayerEffects;
+using Exiled.API.Enums;
 using Exiled.API.Features;
+using Exiled.API.Features.Doors;
 using Exiled.API.Features.Roles;
+using Exiled.API.Features.Toys;
 using Exiled.Events.EventArgs.Player;
+using KruacentExiled.AutoScp079.Abilities;
+using KruacentExiled.AutoScp079.Displays;
 using KruacentExiled.AutoScp079.Jobs;
 using KruacentExiled.AutoScp079.Jobs.JobType;
 using KruacentExiled.CustomRoles.CustomSCPTeam;
@@ -11,9 +16,10 @@ using PlayerRoles.PlayableScps.Scp079.Pinging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using UnityEngine;
-using static PlayerList;
 using Camera = Exiled.API.Features.Camera;
+using Light = Exiled.API.Features.Toys.Light;
 
 namespace KruacentExiled.AutoScp079
 {
@@ -27,13 +33,68 @@ namespace KruacentExiled.AutoScp079
 
         public Scp079Role RoleNPC => NPC?.Role as Scp079Role;
 
+        public bool RoleAssigned => RoleNPC != null;
+
         public Camera CurrentCamera => RoleNPC?.Camera;
 
         public GetClosestCameraComponent GetClosestCameraComponent { get; }
 
         public Player HumanPlayer { get; }
 
-        public AutoScp079HumanDisplay Display { get; }
+
+        private static Dictionary<Camera, Light> _lightUnderCams = null;
+        public void SwitchCamera(Camera newCamera)
+        {
+            Camera oldCamera = RoleNPC.Camera;
+
+            RoleNPC.Camera = newCamera;
+            Light light;
+            if (!_lightUnderCams.ContainsKey(newCamera))
+            {
+                light = Light.Create(newCamera.Position, null, null, false);
+
+                light.Color = Color.blue;
+
+                light.LightType = LightType.Point;
+                if(newCamera.Zone == ZoneType.Entrance)
+                {
+                    light.Intensity = .3f;
+                }
+                else
+                {
+                    light.Intensity = .9f;
+                }
+                _lightUnderCams[newCamera] = light;
+
+                
+
+            }
+            else
+            {
+                light = _lightUnderCams[newCamera];
+            }
+
+            light.Spawn();
+
+            if (_lightUnderCams.TryGetValue(oldCamera, out Light oldLight))
+            {
+                oldLight.UnSpawn();
+            }
+
+        }
+
+        public float CurrentPower
+        {
+            get
+            {
+                return RoleNPC.Energy;
+            }
+            set
+            {
+                RoleNPC.Energy = value;
+            }
+        }
+
 
         public bool Debug { get; }
 
@@ -51,6 +112,13 @@ namespace KruacentExiled.AutoScp079
             {
                 throw new ArgumentNullException("human");
             }
+
+            if(_lightUnderCams == null)
+            {
+                _lightUnderCams = new Dictionary<Camera, Light>();
+            }
+
+            
             Debug = debug;
 
             Log.Debug("creating auto079");
@@ -66,13 +134,33 @@ namespace KruacentExiled.AutoScp079
             JobTracker = NPC.GameObject.AddComponent<JobTracker>();
             JobTracker.Init(this);
 
-            Display = new AutoScp079HumanDisplay(this);
-            
+            AbilityBase.RegisterAbility();
+
+            Auto079Display.CreateDisplay(this);
+        }
 
 
+        public void ScanZone(ZoneType zone)
+        {
+            JobTracker.AddJob(ScanZoneJob.CreateJob(zone));
+        }
+        public void CancelScanZone()
+        {
+            Job current = JobTracker.CurrentJob;
+            if(current is ScanZoneJob)
+            {
+                JobTracker.CancelCurrentJob();
+            }
 
         }
 
+
+        public void ToggleDoor(Door door)
+        {
+            if (door.IsElevator) return;
+
+            JobTracker.AddJob(ToggleDoorJob.CreateJob(door));
+        }
 
         public bool PingVisibleToScp(Vector3 point,PingType pingType)
         {
@@ -101,7 +189,7 @@ namespace KruacentExiled.AutoScp079
         public void Destroy()
         {
             _instances.Remove(this);
-            Display.Destroy();
+            Auto079Display.DestroyAll();
             NPC.Destroy();
         }
 

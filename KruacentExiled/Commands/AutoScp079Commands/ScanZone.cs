@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace KruacentExiled.Commands.AutoScp079Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    internal class ScanZone : KECommand
+    internal class ScanZone : AutoScp079Command
     {
 
 
@@ -25,32 +25,9 @@ namespace KruacentExiled.Commands.AutoScp079Commands
         public override string[] Usage => new string[0];
 
 
-        public override bool ExecuteCommand(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        public override bool Auto079Command(ArraySegment<string> arguments, Player sender, Auto079NPC npc, out string response)
         {
-            Auto079NPC npc = null;
-            Player player = Player.Get(sender);
-            if(player == null)
-            {
-                response = "wrong player";
-                return false;
-            }
-
-            foreach (Auto079NPC auto in Auto079NPC.Instances)
-            {
-                if(auto.HumanPlayer == player)
-                {
-                    npc = auto;
-                    break;
-                }
-            }
-
-            if(npc == null)
-            {
-                response = "no auto 079 found";
-                return false;
-            }
-
-            npc.JobTracker.AddJob(ScanZoneJob.CreateJob(player.Zone));
+            npc.ScanZone(sender.Zone);
 
 
             response = "ok";

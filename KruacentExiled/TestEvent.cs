@@ -3,6 +3,7 @@ using KE.Utils.API.Interfaces;
 using KruacentExiled.AutoScp079;
 using KruacentExiled.AutoScp079.Jobs.JobType;
 using MEC;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -46,8 +47,15 @@ namespace KruacentExiled
 
             firstPlayer.Role.Set(PlayerRoles.RoleTypeId.Scp049);
 
-
-            Auto079NPC = new Auto079NPC(firstPlayer,true);
+            try
+            {
+                Auto079NPC = new Auto079NPC(firstPlayer, true);
+            }
+            catch(Exception e)
+            {
+                Log.Error(e);
+            }
+            
 
 
 

@@ -49,7 +49,7 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
             if (Auto079NPC.CurrentCamera != Objective)
             {
-                Auto079NPC.RoleNPC.Camera = Objective;
+                Auto079NPC.SwitchCamera(Objective);
 
                 //todo cost calc
                 
