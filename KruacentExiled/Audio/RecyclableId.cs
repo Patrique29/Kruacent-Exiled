@@ -30,7 +30,6 @@ namespace KruacentExiled.Audio
                 value = _autoIncrement++;
             }
             Value = value;
-            Log.Warn("creating id:" + Value);
 
         }
 
@@ -40,7 +39,6 @@ namespace KruacentExiled.Audio
             if (Value != 0)
             {
                 FreeIds.Enqueue(Value);
-                Log.Warn("destroying id:" + Value);
             }
         }
 

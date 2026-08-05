@@ -1,6 +1,7 @@
 ﻿using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using Exiled.API.Features.Items;
 using Exiled.API.Features.Pools;
 using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API;
@@ -10,6 +11,7 @@ using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.Feeds;
 using KE.Utils.API.Translations;
 using KruacentExiled.CustomItems;
+using KruacentExiled.CustomItems.API.Exceptions;
 using KruacentExiled.CustomItems.API.Interface;
 using PlayerRoles.SpawnData;
 using System;
@@ -142,6 +144,12 @@ namespace KruacentExiled.CustomItems.API.Features
         }
         public new static KECustomItem Get(string name)
         {
+            if (!name.Contains(name))
+            {
+                throw new CustomItemNotFoundException(name);
+            }
+
+
             return _nameLookup[name];
         }
         public static bool TryGet(string name, out KECustomItem item)
@@ -339,6 +347,25 @@ namespace KruacentExiled.CustomItems.API.Features
             return true;
 
 
+        }
+
+        /// <summary>
+        /// Set a <see cref="Pickup"/> as the <see cref="KECustomItem"/>
+        /// </summary>
+        /// <param name="pickup"></param>
+        /// <param name="forceSameItem">force the pickup to be the same item as the <see cref="KECustomItem"/><br/> see <seealso cref="Type"/></param>
+        public void SetItem(Pickup pickup,bool forceSameItem = true)
+        {
+            
+            if(forceSameItem && pickup.Type != Type)
+            {
+                throw new ArgumentException("wrong item type");
+            }
+
+            pickup.Scale = Scale;
+            pickup.Weight = Weight;
+
+            TrackedSerials.Add(pickup.Serial);
         }
 
         public static bool IsConsideredViolent(KECustomItem item)
