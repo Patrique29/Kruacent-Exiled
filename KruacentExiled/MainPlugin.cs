@@ -2,7 +2,9 @@
 using Exiled.API.Interfaces;
 using KE.Utils.API;
 using KruacentExiled.Audio;
+using KruacentExiled.ClientPrimitives;
 using KruacentExiled.DebugSettings;
+using MEC;
 using System;
 using System.Linq;
 
@@ -65,6 +67,13 @@ namespace KruacentExiled
 
             AudioHandler = new AudioHandler(Config.Debug);
             AudioHandler.SubscribeEvents();
+
+
+            Timing.CallDelayed(10, () =>
+            {
+                Loader.Load();
+            });
+
 
             base.OnEnabled();
         }
