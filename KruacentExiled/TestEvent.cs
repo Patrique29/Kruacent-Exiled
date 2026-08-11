@@ -55,11 +55,14 @@ namespace KruacentExiled
             {
                 Log.Error(e);
             }
-            
+            firstPlayer.IsGodModeEnabled = true;
+
+            yield return Timing.WaitForSeconds(2);
+
+            firstPlayer.Teleport(Room.Get(Exiled.API.Enums.RoomType.HczTesla));
 
 
-
-            Npc test = Npc.Spawn("testping", PlayerRoles.RoleTypeId.ClassD,position:firstPlayer.Position);
+            //Npc test = Npc.Spawn("testping", PlayerRoles.RoleTypeId.ClassD,position:firstPlayer.Position);
 
 
             //SwitchCameraJob job = SwitchCameraJob.CreateJob(Camera.Get(Exiled.API.Enums.CameraType.LczCellblockEntry));

@@ -1,4 +1,5 @@
-﻿using KE.Utils.API.Features;
+﻿using Exiled.API.Features;
+using KE.Utils.API.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,18 +22,42 @@ namespace KruacentExiled.AutoScp079.Jobs
 
         public void Add(Job job)
         {
-            if (QueueSize > 0 && job.Equals(_lastadded))
+            if (QueueSize > 0)
             {
-                //KELog.Debug("same job added "+ job.ToString());
-                return;
-            }
 
+                if (job.Equals(_lastadded))
+                {
+                    return;
+                }
+                Job peek = Peek();
+
+                if (peek is IInfiniteJob)
+                {
+                    Log.Info("cancelling infinite " + peek.ToString());
+                    CancelCurrent();
+                }
+            }
+            
+
+            
 
             _jobs.Enqueue(job);
             _lastadded = job;
             //KELog.Debug("adding job");
         }
 
+
+        public void CancelCurrent()
+        {
+            if (_jobs.Count == 0)
+            {
+                return;
+            }
+
+            Job job = _jobs.Peek();
+
+            job.Cancel();
+        }
         
 
         public void Update()
@@ -49,6 +74,7 @@ namespace KruacentExiled.AutoScp079.Jobs
 
             if (job.IsFinished || job.IsCancelled)
             {
+                Log.Info("dequeuing : " + job.ToString() + " reason : finished? "+ job.IsFinished);
                 job.Cleanup();
                 _jobs.Dequeue();
             }

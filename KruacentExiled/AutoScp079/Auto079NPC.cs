@@ -154,6 +154,16 @@ namespace KruacentExiled.AutoScp079
 
         }
 
+        public void WaitAtRoom()
+        {
+            JobTracker.AddJob(WaitAtRoomJob.CreateJob(CurrentCamera.Room));
+        }
+
+        public void CancelCurrentJob()
+        {
+            JobTracker.CancelCurrentJob();
+        }
+
 
         public void ToggleDoor(Door door)
         {
@@ -183,6 +193,17 @@ namespace KruacentExiled.AutoScp079
 
 
             return false;
+        }
+
+        public void ActivateCurrentTesla()
+        {
+            if (RoleNPC.TeslaAbility.IsReady)
+            {
+                //remove 5 aux
+                RoleNPC.ActivateTesla(false);
+            }
+            
+            
         }
 
 

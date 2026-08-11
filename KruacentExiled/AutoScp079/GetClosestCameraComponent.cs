@@ -1,6 +1,7 @@
 ﻿using Exiled.API.Features;
 using KE.Utils.API.Features;
 using KruacentExiled.AutoScp079.Jobs.JobType;
+using System;
 using UnityEngine;
 using Camera = Exiled.API.Features.Camera;
 
@@ -56,9 +57,17 @@ namespace KruacentExiled.AutoScp079
                 Log.SendRaw("changing cam from " + _comp.CurrentCamera.Name + " to " + closest.Name, System.ConsoleColor.DarkRed);
                 Log.SendRaw("queue size=" + _comp.JobTracker.Queue.QueueSize, System.ConsoleColor.DarkRed);
 
-
-                SwitchCameraJob job = SwitchCameraJob.CreateJob(closest);
-                _comp.JobTracker.AddJob(job);
+                try
+                {
+                    SwitchCameraJob job = SwitchCameraJob.CreateJob(closest);
+                    _comp.JobTracker.AddJob(job);
+                }
+                catch(Exception e)
+                {
+                    Log.Error(e);
+                }
+                
+                Log.SendRaw("queue after=" + _comp.JobTracker.Queue.QueueSize, System.ConsoleColor.DarkRed);
                 //_comp.JobTracker.AddJob(JobWait.CreateJob(Cooldown));
             }
 

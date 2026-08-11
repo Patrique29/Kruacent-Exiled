@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KruacentExiled.AutoScp079.Jobs.JobType
 {
-    internal class ScanRoomJob : Job
+    internal sealed class ScanRoomJob : Job
     {
 
         public ScanZoneJob ScanZoneJob { get; private set; }

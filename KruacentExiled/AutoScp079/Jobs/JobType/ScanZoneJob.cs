@@ -14,7 +14,7 @@ using Camera = Exiled.API.Features.Camera;
 
 namespace KruacentExiled.AutoScp079.Jobs.JobType
 {
-    internal class ScanZoneJob : CompositeJob
+    internal sealed class ScanZoneJob : CompositeJob
     {
         public ZoneType ZoneToScan { get; private set; }
 

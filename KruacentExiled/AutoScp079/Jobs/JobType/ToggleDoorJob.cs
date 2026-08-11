@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KruacentExiled.AutoScp079.Jobs.JobType
 {
-    public class ToggleDoorJob : Job
+    public sealed class ToggleDoorJob : Job
     {
         public Door Objective { get; private set; }
 

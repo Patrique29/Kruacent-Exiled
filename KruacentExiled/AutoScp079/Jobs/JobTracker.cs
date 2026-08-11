@@ -53,7 +53,15 @@ namespace KruacentExiled.AutoScp079.Jobs
         private void Update()
         {
             if (!init) return;
-            _queue.Update();
+            try
+            {
+                _queue.Update();
+            }
+            catch(Exception e)
+            {
+                Log.Error(e);
+            }
+            
 
 
             try
@@ -114,7 +122,7 @@ namespace KruacentExiled.AutoScp079.Jobs
 
         }
 
-        public void AddJob(Job job)
+        public void AddJob(Job job,bool hasPriority = false)
         {
             if(_player == null)
             {
@@ -124,6 +132,9 @@ namespace KruacentExiled.AutoScp079.Jobs
             _queue.Add(job);
         }
 
+
+
+        
 
         public Job CurrentJob
         {
@@ -141,14 +152,10 @@ namespace KruacentExiled.AutoScp079.Jobs
 
         public void CancelCurrentJob()
         {
-            if (_player == null)
-            {
-                return;
-            }
-
-            CurrentJob?.Cancel();
-            
+            Queue.CancelCurrent();
         }
+
+
 
     }
 }
