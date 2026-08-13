@@ -28,7 +28,7 @@ namespace KruacentExiled.CustomItems.Items.ItemEffects
 
         private void SpawnWall(Vector3 pos, Quaternion rotation)
         {
-            float distance = 2;
+            float distance = 3;
             Vector3 forward = rotation * Vector3.forward;
             Vector3 spawnPos = pos + forward * distance;
             Vector3 rotat = new Vector3(0, rotation.eulerAngles.y, 0);

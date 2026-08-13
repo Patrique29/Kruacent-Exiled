@@ -1,5 +1,8 @@
 ﻿using AdminToys;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
+using Exiled.API.Features.Toys;
+using Exiled.CustomRoles.Commands;
 using LabApi.Features.Wrappers;
 using Mirror;
 using System;
@@ -7,103 +10,153 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PlayerLab = LabApi.Features.Wrappers.Player;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 using Player = Exiled.API.Features.Player;
+using PlayerLab = LabApi.Features.Wrappers.Player;
 
 namespace KruacentExiled.ClientPrimitives
 {
     public class ClientSidePrimitive
     {
-        public Vector3 position { get; set; }
-        public Quaternion rotation { get; set; }
-        public Vector3 scale { get; set; }
-        public PrimitiveType primitiveType { get; set; }
-        public Color color { get; set; }
-        public PrimitiveFlags primitiveFlags { get; set; }
 
-        public SpawnMessage spawnMessage { get; set; }
-
-        public ObjectDestroyMessage destroyMessage { get; set; }
-
-        public uint netId { get; set; }
-
-
-        public ClientSidePrimitive(Vector3 position, Quaternion rotation, Vector3 scale, PrimitiveType primitiveType, Color color, PrimitiveFlags primitiveFlags)
+        private Vector3 _position;
+        public Vector3 Position
         {
-            this.position = position;
-            this.rotation = rotation;
-            this.scale = scale;
-            this.primitiveType = primitiveType;
-            this.color = color;
-            this.primitiveFlags = primitiveFlags;
-            netId = NetworkIdentity.GetNextNetworkId();
+            get
+            {
+                return _position;
+            }
+            set
+            {
+                if(value != _position)
+                {
+                    _position = value;
+                    if (AutoResync)
+                    {
+                        Resync();
+                    }
+                }
+            }
+        }
+
+        private Quaternion _rotation;
+        public Quaternion Rotation
+        {
+            get => _rotation;
+            set
+            {
+                if (value != _rotation)
+                {
+                    _rotation = value;
+                    if (AutoResync)
+                    {
+                        Resync();
+                    }
+                    
+                }
+            }
+        }
+        public Vector3 Scale { get; private set; }
+        public PrimitiveType PrimitiveType { get; private set; }
+        public Color Color { get; private set; }
+        public PrimitiveFlags PrimitiveFlags { get; private set; }
+
+        public SpawnMessage SpawnMessage { get; private set; }
+
+        public ObjectDestroyMessage DestroyMessage { get; private set; }
+
+        public uint NetId { get; private set; }
+
+        public Player Player { get; }
+
+
+        public bool AutoResync { get; set; }
+        
+
+        public ClientSidePrimitive(Vector3 position, Quaternion rotation, Vector3 scale, PrimitiveType primitiveType, Color color, PrimitiveFlags primitiveFlags,Player player,bool autoResync = true)
+        {
+
+            if(player == null || player.IsHost)
+            {
+                throw new ArgumentException("player null or is host");
+            }
+
+            _position = position;
+            Rotation = rotation;
+            Scale = scale;
+            PrimitiveType = primitiveType;
+            Color = color;
+            PrimitiveFlags = primitiveFlags;
+            Player = player;
+
+            AutoResync = autoResync;
+
             GenerateNetworkMessages();
+
         }
 
         private void GenerateNetworkMessages()
         {
+            NetId = NetworkIdentity.GetNextNetworkId();
             NetworkWriterPooled writer = NetworkWriterPool.Get();
-            writer.Write<byte>(1);
-            writer.Write<byte>(67);
-            writer.Write(position);
-            writer.Write(rotation);
-            writer.Write(scale);
-            writer.Write<byte>(0);
-            writer.Write(false);
-            writer.Write((int)primitiveType);
-            writer.Write(color);
-            writer.Write((byte)primitiveFlags);
-            writer.Write<uint>(0);
+            writer.Write<byte>(1); //??
+            writer.Write<byte>(67); //??
+            writer.Write(_position); //position
+            writer.Write(_rotation); //rotation
+            writer.Write(Scale); //scale
+            writer.Write<byte>(0); //movement smoothing
+            writer.Write(false); //static
+            writer.Write((int)PrimitiveType); //primitivetype
+            writer.Write(Color); // color
+            writer.Write((byte)PrimitiveFlags); //primitive flag
+            writer.Write<uint>(0); //parent netid
 
-            spawnMessage = new SpawnMessage()
+
+
+            //Log.Info("primitive position " + _position);
+            //Log.Info("Player position " + Player.Position);
+
+            SpawnMessage = new SpawnMessage()
             {
-                netId = netId,
+                netId = NetId,
                 isLocalPlayer = false,
                 isOwner = false,
                 sceneId = 0,
                 assetId = Loader.PrimitiveAssetId,
-                position = position,
-                rotation = rotation,
-                scale = scale,
+                position = _position,
+                rotation = _rotation,
+                scale = Scale,
                 payload = writer.ToArraySegment()
             };
 
-            destroyMessage = new ObjectDestroyMessage()
+            DestroyMessage = new ObjectDestroyMessage()
             {
-                netId = netId,
+                netId = NetId,
             };
+            //NetworkWriterPool.Return(writer);
 
         }
 
-        public void DestroyForEveryone()
+
+
+        public void Resync()
         {
-            foreach (Player player in Player.List.Where(p => p != null && !p.IsNPC))
-            {
-                DestroyClientPrimitive(player);
-            }
+            DestroyClientPrimitive();
+            GenerateNetworkMessages();
+
+            SpawnClientPrimitive();
+
         }
 
-        public void DestroyClientPrimitive(Player target)
+        public void DestroyClientPrimitive()
         {
-            if (target == null || target.IsHost) return; // DO NOT SEND THIS TO THE DEDICATED OTHERWISE EVERYTHING WILL BROKE TRUST ME I LOST 3 MONTHS OF MY LIFE BECAUSE OF THIS
-
-            target.Connection?.Send(destroyMessage);
+            Player.Connection?.Send(DestroyMessage);
         }
 
-        public void SpawnForEveryone()
+        public void SpawnClientPrimitive()
         {
-            foreach (Player player in Player.List.Where(p => p != null && !p.IsNPC))
-            {
-                SpawnClientPrimitive(player);
-            }
-        }
-
-        public void SpawnClientPrimitive(Player target)
-        {
-            if (target == null || target.IsHost) return; // DO NOT SEND THIS TO THE DEDICATED OTHERWISE EVERYTHING WILL BROKE TRUST ME I LOST 3 MONTHS OF MY LIFE BECAUSE OF THIS
-
-            target.Connection?.Send(spawnMessage);
+            Player.Connection?.Send(SpawnMessage);
         }
     }
 }
