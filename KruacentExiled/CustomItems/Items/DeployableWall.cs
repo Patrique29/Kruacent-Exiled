@@ -178,23 +178,6 @@ namespace KruacentExiled.CustomItems.Items
             _paused = false;
         }
 
-        public const float Distance = 3f;
-
-        
-
-        private bool Raycast(out RaycastHit hit)
-        {
-            bool result = Physics.Raycast(Player.Position, Player.CameraTransform.forward, out hit, Distance, (int)LayerMasks.Default);
-
-            if (debug)
-            {
-                DrawableLines.IsDebugModeEnabled = true;
-                DrawableLines.GenerateLine(1, UnityEngine.Color.gray, Player.Position, Player.Position + Player.CameraTransform.forward * Distance);
-
-            }
-
-            return result;
-        }
 
 
         private Color32 Color = new Color32(0, 0, 200, 150);
@@ -269,18 +252,7 @@ namespace KruacentExiled.CustomItems.Items
             try
             {
 
-                Vector3 position = Vector3.zero;
-
-
-                if(Raycast(out RaycastHit hit))
-                {
-                    position = hit.point;
-                }
-                else
-                {
-                    position = Player.Position + Player.CameraTransform.forward * Distance;
-                }
-
+                Vector3 position = DeployableWallEffect.GetSpawnPosition(Player.Position,Player.CameraTransform.forward);
                 MoveOrCreatePrimitive(position);
             }
             catch(Exception e)

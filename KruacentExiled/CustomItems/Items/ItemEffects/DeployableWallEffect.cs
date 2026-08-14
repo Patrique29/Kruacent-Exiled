@@ -1,11 +1,15 @@
-﻿using Exiled.API.Features;
+﻿using Exiled.API.Enums;
+using Exiled.API.Features;
 using Exiled.API.Features.Toys;
+using Exiled.API.Interfaces;
 using Exiled.Events.EventArgs.Map;
 using Exiled.Events.EventArgs.Player;
 using KE.Utils.API.Sounds;
 using KruacentExiled.CustomItems.API.Interface;
 using MEC;
+using ProjectMER.Commands.Modifying.Position;
 using UnityEngine;
+using static PlayerList;
 
 
 namespace KruacentExiled.CustomItems.Items.ItemEffects
@@ -28,9 +32,8 @@ namespace KruacentExiled.CustomItems.Items.ItemEffects
 
         private void SpawnWall(Vector3 pos, Quaternion rotation)
         {
-            float distance = 3;
             Vector3 forward = rotation * Vector3.forward;
-            Vector3 spawnPos = pos + forward * distance;
+            Vector3 spawnPos = GetSpawnPosition(pos, forward);
             Vector3 rotat = new Vector3(0, rotation.eulerAngles.y, 0);
 
 
@@ -63,6 +66,36 @@ namespace KruacentExiled.CustomItems.Items.ItemEffects
             });
 
 
+        }
+
+        public static Vector3 GetSpawnPosition(Vector3 position, Vector3 forward)
+        {
+            Vector3 result;
+            if (Raycast(position, forward, out RaycastHit hit))
+            {
+                result = hit.point;
+            }
+            else
+            {
+                result = position + forward * Distance;
+            }
+
+            return result;
+        }
+
+
+        public const float Distance = 3f;
+
+
+
+        public static bool Raycast(Vector3 position, Vector3 forward, out RaycastHit hit)
+        {
+            bool result = Physics.Raycast(position, forward, out hit, Distance, (int)LayerMasks.Default);
+
+            //DrawableLines.IsDebugModeEnabled = true;
+            //    DrawableLines.GenerateLine(1, UnityEngine.Color.gray, Player.Position, Player.Position + Player.CameraTransform.forward * Distance);
+
+            return result;
         }
     }
 }
