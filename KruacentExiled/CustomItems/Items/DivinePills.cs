@@ -45,7 +45,19 @@ namespace KruacentExiled.CustomItems.Items
         /// <inheritdoc/>
         public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties()
         {
-            LockerSpawnPoints = new List<LockerSpawnPoint>
+            RoomSpawnPoints = new List<RoomSpawnPoint>
+            {
+                new RoomSpawnPoint()
+                {
+                    Chance = 80,
+                    Room = RoomType.LczGlassBox,
+                },
+            },
+
+        };
+
+
+        protected override List<LockerSpawnPoint> LockerSpawnPoint => new List<LockerSpawnPoint>()
         {
             new LockerSpawnPoint()
             {
@@ -61,16 +73,6 @@ namespace KruacentExiled.CustomItems.Items
                 Type = LockerType.Medkit,
                 Zone = ZoneType.LightContainment,
             },
-        },
-            RoomSpawnPoints = new List<RoomSpawnPoint>
-        {
-            new RoomSpawnPoint()
-            {
-                Chance = 80,
-                Room = RoomType.LczGlassBox,
-            },
-        },
-
         };
 
         public CustomItemEffect Effect { get; set; }
