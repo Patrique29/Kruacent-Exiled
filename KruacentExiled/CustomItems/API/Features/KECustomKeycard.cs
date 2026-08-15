@@ -134,7 +134,7 @@ namespace KruacentExiled.CustomItems.API.Features
             base.Give(player, item, displayMessage);
         }
 
-        public override Pickup? Spawn(Vector3 position, Item item, Player previousOwner = null)
+        public override Pickup Spawn(Vector3 position, Item item, Player previousOwner = null)
         {
             if (item.Is<Keycard>(out var param))
             {
@@ -147,12 +147,12 @@ namespace KruacentExiled.CustomItems.API.Features
 
         protected override void ShowPickedUpMessage(Player player)
         {
-            KECustomItem.Message(this, player, true);
+            Message(this, player, true);
         }
 
         protected override void ShowSelectedMessage(Player player)
         {
-            KECustomItem.Message(this, player);
+            Message(this, player);
         }
 
     }

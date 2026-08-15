@@ -9,7 +9,7 @@ using KruacentExiled.CustomItems.Items.ItemEffects;
 
 namespace KruacentExiled.CustomItems.Items
 {
-    public class DeployableWall : KECustomItem, ILumosItem, ISwitchableEffect
+    public class DeployableWall : KECustomKeycard, ILumosItem, ISwitchableEffect
     {
         protected override Dictionary<string, Dictionary<string, string>> SetTranslation()
         {
@@ -27,10 +27,14 @@ namespace KruacentExiled.CustomItems.Items
                 },
             };
         }
-        public override ItemType ItemType => ItemType.KeycardJanitor;
+        public override ItemType ItemType => ItemType.KeycardCustomManagement;
         public override string Name { get; set; } = "Deployable Wall";
         public override float Weight { get; set; } = 0.65f;
         public Color Color { get; set; } = Color.green;
+        public override string KeycardLabel { get; set; } = "Wall";
+        public override Color32? KeycardLabelColor { get; set; } = Color.black;
+        public override Color32? KeycardPermissionsColor { get; set; } = Color.black;
+        public override Color32? TintColor { get; set; } = new Color32(139, 127, 158, 255); // janitor card color
 
         public CustomItemEffect Effect { get; set; }
         public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties()
