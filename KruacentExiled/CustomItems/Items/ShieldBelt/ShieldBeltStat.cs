@@ -1,4 +1,5 @@
 ﻿using AdminToys;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.API.Features.Toys;
 using KE.Utils.API.Features.Models;
@@ -158,8 +159,6 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
             }
         }
 
-        private static uint assetId;
-        private static bool assetSet = false;
         private Primitive CreatePrimitive(Player player)
         {
             Primitive prim = Primitive.Create(null, null, null, false);
@@ -170,20 +169,9 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
             prim.Scale = MaxSize*Vector3.one;
             prim.Color = new Color32(50, 50, 50, 50);
             prim.MovementSmoothing = 0;
+            
 
-
-            if(!assetSet)
-            {
-                foreach (GameObject prefab in NetworkClient.prefabs.Values)
-                {
-                    if (prefab.TryGetComponent<PrimitiveObjectToy>(out _))
-                    {
-                        assetId = prefab.GetComponent<NetworkIdentity>().assetId;
-                        assetSet = true;
-                        break;
-                    }
-                }
-            }
+            //MirrorExtensions.SendFakeSyncVar<PrimitiveFlags>(player, prim.Base.netIdentity, typeof(PrimitiveObjectToy), "PrimitiveFlags", PrimitiveFlags.None);
 
 
             return prim;
@@ -196,8 +184,10 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
                 player = Player.Get(transform.root.gameObject);
 
                 primitive = CreatePrimitive(player);
+                
                 currentCharge = Base;
                 timeRemaining = 0;
+                primitive.Spawn();
             }
             catch(Exception e)
             {

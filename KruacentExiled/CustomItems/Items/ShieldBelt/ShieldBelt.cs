@@ -186,7 +186,20 @@ namespace KruacentExiled.CustomItems.Items.ShieldBelt
                 return;
             }
             if (!stat.IsActive) return;
-            ev.Amount = stat.Damage(ev.Amount);
+
+            if(ev.Attacker == null)
+            {
+                return;
+            }
+
+
+            if (HitboxIdentity.IsDamageable(ev.Attacker.ReferenceHub, ev.Player.ReferenceHub))
+            {
+                ev.Amount = stat.Damage(ev.Amount);
+                ev.Attacker.ShowHitMarker();
+                return;
+            }
+            
             
 
 
