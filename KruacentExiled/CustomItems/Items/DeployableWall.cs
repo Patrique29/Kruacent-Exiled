@@ -200,12 +200,14 @@ namespace KruacentExiled.CustomItems.Items
                 if (!lastPosition.Equals(hitPosition))
                 {
                     primitive.Position = hitPosition;
+                    lastPosition = hitPosition;
                     flag = true;
                 }
 
                 if (!lastRotation.Equals(rotation))
                 {
                     primitive.Rotation = rotation;
+                    lastRotation = rotation;
                     flag = true;
                 }
                 if (flag)

@@ -2,8 +2,10 @@
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.API.Features.Attributes;
+using Exiled.API.Features.Roles;
 using Exiled.API.Features.Toys;
 using Exiled.CustomRoles.API.Features;
+using HintServiceMeow.UI.Utilities;
 using KE.Utils.API.GifAnimator;
 using KruacentExiled.ClientPrimitives;
 using KruacentExiled.CustomItems.Items.ItemEffects;
@@ -12,12 +14,15 @@ using KruacentExiled.CustomRoles.API.Interfaces;
 using KruacentExiled.CustomRoles.CustomSCPTeam;
 using MEC;
 using PlayerRoles;
+using PlayerRoles.FirstPersonControl;
+using ProjectMER.Commands.Modifying.Scale;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+
 
 namespace KruacentExiled.CustomRoles.Abilities
 {
@@ -65,7 +70,7 @@ namespace KruacentExiled.CustomRoles.Abilities
             if (!player.GameObject.TryGetComponent<ConvertComponent>(out var comp))
             {
                 comp = player.GameObject.AddComponent<ConvertComponent>();
-                comp.Init(player, false);
+                comp.Init(player, this,false);
             }
             base.AbilityAdded(player);
         }
@@ -81,14 +86,9 @@ namespace KruacentExiled.CustomRoles.Abilities
         {
             Vector3 start = player.CameraTransform.position+ player.CameraTransform.forward*.2f;
             Vector3 end = start + player.CameraTransform.forward * MaxDistance;
+          
 
-            DrawableLines.IsDebugModeEnabled = MainPlugin.Instance.Config.Debug;
-            DrawableLines.ServerGenerateLine(10f,null,start, end);
-
-
-            
-
-            if (!Physics.Linecast(start, end, out RaycastHit hit)) return false;
+            if (!Raycast(player,out var hit)) return false;
 
 
             Player playerHit = Player.Get(hit.collider);
@@ -126,6 +126,7 @@ namespace KruacentExiled.CustomRoles.Abilities
             return base.AbilityUsed(player);
         }
 
+
         public static bool Raycast(Player player,out RaycastHit hit)
         {
             Vector3 start = player.CameraTransform.position + player.CameraTransform.forward * .5f;
@@ -134,11 +135,11 @@ namespace KruacentExiled.CustomRoles.Abilities
             bool result = Physics.Raycast(player.CameraTransform.position + player.CameraTransform.forward * .5f, player.CameraTransform.forward, out hit, MaxDistance, (int)(LayerMasks.All));
 
 
-            if (MainPlugin.Instance.Config.Debug)
-            {
-                DrawableLines.IsDebugModeEnabled = true;
-                DrawableLines.GenerateLine(start, end);
-            }
+            //if (MainPlugin.Instance.Config.Debug)
+            //{
+            //    DrawableLines.IsDebugModeEnabled = true;
+            //    DrawableLines.GenerateLine(start, end);
+            //}
 
 
 
@@ -153,6 +154,8 @@ namespace KruacentExiled.CustomRoles.Abilities
     public class ConvertComponent : MonoBehaviour
     {
         public Player Player { get; private set; }
+
+        private Dictionary<Collider,ClientSidePrimitive> primitives = null;
         private ClientSidePrimitive primitive = null;
         private bool debug;
 
@@ -173,39 +176,81 @@ namespace KruacentExiled.CustomRoles.Abilities
             }
         }
 
-        public void Init(Player player, bool debug = false)
+        private Convert _ability;
+
+        public void Init(Player player,Convert ability, bool debug = false)
         {
             Player = player;
             this.debug = debug;
+            _ability = ability;
+            primitives = new Dictionary<Collider, ClientSidePrimitive>();
+            lastpositions = new Dictionary<ClientSidePrimitive, Vector3>();
             _paused = false;
         }
 
 
 
-        private Color32 Color = new Color32(0, 0, 200, 150);
-        private Vector3 lastPosition = Vector3.zero;
-        private void MoveOrCreatePrimitive(Player playerHit)
-        {
-            if (primitive == null)
-            {
+        private Color32 ColorValid = new Color32(0, 0, 200, 150);
+        private Color32 ColorInvalid = new Color32(200, 0, 0, 150);
 
-                Vector3 scale = playerHit.Scale;
-                primitive = new ClientSidePrimitive(playerHit.Position, Quaternion.identity, scale, PrimitiveType.Cube, Color, AdminToys.PrimitiveFlags.Visible, Player, false);
-                primitive.SpawnClientPrimitive();
+        private Dictionary<ClientSidePrimitive, Vector3> lastpositions;
+        private ClientSidePrimitive MoveOrCreatePrimitive(Collider collider,bool valid)
+        {
+            Color color;
+
+            if (valid)
+            {
+                color = ColorValid;
             }
             else
             {
+                color = ColorInvalid;
 
-                if (!lastPosition.Equals(playerHit.Position))
+            }
+
+
+
+            ClientSidePrimitive primitive = null;
+            if (!primitives.ContainsKey(collider))
+            {
+                Bounds bounds = collider.bounds;
+                Vector3 scale = bounds.size;
+                Vector3 center = bounds.center;
+
+                primitive = new ClientSidePrimitive(center, Quaternion.identity, scale, PrimitiveType.Cube, color, AdminToys.PrimitiveFlags.Visible, Player, false);
+                primitive.SpawnClientPrimitive();
+                lastpositions.Add(primitive, primitive.Position);
+                primitives.Add(collider, primitive);
+            }
+            else
+            {
+                primitive = primitives[collider];
+
+                if(!lastpositions.TryGetValue(primitive,out Vector3 oldPosition))
                 {
-                    primitive.Position = playerHit.Position;
-                    primitive.Resync();
+                    if (!oldPosition.Equals(collider.transform.position))
+                    {
+                        primitive.Position = oldPosition;
+                        primitive.Resync();
+                    }
                 }
             }
+
+
+            return primitive;
         }
 
         public void DestroyPrimitive()
         {
+
+            foreach(ClientSidePrimitive primitive in primitives.Values)
+            {
+                primitive.DestroyClientPrimitive();
+            }
+
+            primitives?.Clear();
+            lastpositions?.Clear();
+
             primitive?.DestroyClientPrimitive();
             primitive = null;
         }
@@ -219,8 +264,32 @@ namespace KruacentExiled.CustomRoles.Abilities
         private float counter = 1f;
         private const float TickTime = .1f;
 
+
+        private void CreatePrimitive(Exiled.API.Features.Player player,bool valid)
+        {
+            if (player.Role is FpcRole fpc)
+            {
+
+                foreach (HitboxIdentity hitboxIdentity in fpc.Model.Hitboxes)
+                {
+                    foreach (Collider collider in hitboxIdentity.TargetColliders)
+                    {
+                        MoveOrCreatePrimitive(collider, valid);
+                    }
+                }
+
+            }
+        }
+
+        private Player firstPlayerHit = null;
+
         internal void Update()
         {
+            if (!_ability.CanUse(Player, out _))
+            {
+                DestroyPrimitive();
+                return;
+            }
             counter -= Time.deltaTime;
             if (counter > 0)
             {
@@ -232,18 +301,27 @@ namespace KruacentExiled.CustomRoles.Abilities
                 return;
             }
 
+            
+
             counter = TickTime;
             try
             {
-
                 bool result = Convert.Raycast(Player, out var hit);
 
                 if (result && Exiled.API.Features.Player.TryGet(hit.collider, out Exiled.API.Features.Player playerHit))
                 {
-                    if(SCPTeam.IsSCP(playerHit.ReferenceHub) && playerHit.Role.Type != RoleTypeId.Scp0492)
+
+                    if(firstPlayerHit != null && playerHit != firstPlayerHit)
+                    {
+                        return;
+                    }
+
+                    firstPlayerHit = playerHit;
+
+                    if (SCPTeam.IsSCP(playerHit.ReferenceHub) && playerHit.Role.Type != RoleTypeId.Scp0492)
                     {
                         Log.Info("scp non zombie");
-                        DestroyPrimitive();
+                        CreatePrimitive(playerHit, false);
                         return;
                     }
 
@@ -251,15 +329,17 @@ namespace KruacentExiled.CustomRoles.Abilities
                     if(playerHit.LeadingTeam == Player.LeadingTeam)
                     {
                         Log.Info("same team");
-                        DestroyPrimitive();
+                        CreatePrimitive(playerHit, false);
                         return;
                     }
 
-                    MoveOrCreatePrimitive(playerHit);
+                    CreatePrimitive(playerHit,true);
+
                 }
                 else
                 {
                     DestroyPrimitive();
+                    firstPlayerHit = null;
                 }
 
             }
