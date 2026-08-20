@@ -1,9 +1,10 @@
-﻿using Exiled.API.Features.Doors;
+﻿using Exiled.API.Features;
+using Exiled.API.Features.Doors;
+using KE.Utils.API.Features;
+using KruacentExiled.Map.Heavy;
+using RoundRestarting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KruacentExiled.AutoScp079.Jobs.JobType
 {
@@ -27,22 +28,59 @@ namespace KruacentExiled.AutoScp079.Jobs.JobType
 
         public override void OnStart()
         {
-            if(Auto079NPC.CurrentCamera == null)
+            KELog.Debug("try toggle " + Objective.Name);
+
+            if(Objective == null)
             {
+                throw new ArgumentNullException(nameof(Objective));
+            }
+
+            if (Auto079NPC.CurrentCamera == null)
+            {
+                KELog.Debug("no cam");
                 EndJob();
                 return;
             }
 
             if (Objective.IsLocked)
             {
+                KELog.Debug("lcoked");
                 EndJob();
                 return;
             }
 
+            if(BulkDoor049.Door == Objective.Base && BulkDoor049.DoorRoom == Auto079NPC.CurrentCamera.Room)
+            {
+                ToggleDoor();
+                return;
+            }
+
+
+
+
             if (Auto079NPC.CurrentCamera.Room.Doors.Contains(Objective))
             {
-                Objective.IsOpen = !Objective.IsOpen;
+                ToggleDoor();
+                return;
             }
+
+
+            Room room = Room.FindParentRoom(Objective.Base.gameObject);
+
+            if(room != null && room == Auto079NPC.CurrentCamera.Room)
+            {
+                ToggleDoor();
+                return;
+            }
+
+            Log.Error("door not poened");
+            EndJob();
+        }
+
+        private void ToggleDoor()
+        {
+            KELog.Debug("toggle " + Objective.Name);
+            Objective.IsOpen = !Objective.IsOpen;
             EndJob();
         }
 

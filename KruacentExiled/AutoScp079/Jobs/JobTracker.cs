@@ -1,17 +1,8 @@
 ﻿using DrawableLine;
 using Exiled.API.Enums;
-using Exiled.API.Extensions;
 using Exiled.API.Features;
-using Exiled.API.Features.Roles;
-using InventorySystem.Items.Firearms.Modules.Scp127;
-using KE.Utils.API.Features;
-using KruacentExiled.AutoScp079.Jobs.JobType;
-using KruacentExiled.CustomRoles.CustomSCPTeam;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Camera = Exiled.API.Features.Camera;
 
@@ -97,17 +88,24 @@ namespace KruacentExiled.AutoScp079.Jobs
             }
             _currentCooldown = Cooldown;
 
+            Ping(currentCamera);
+
+
+        }
+
+        public void Ping(Camera camera)
+        {
 
             rooms.Clear();
 
-            rooms.Add(currentCamera.Room);
-            
+            rooms.Add(camera.Room);
 
-            rooms.AddRange(currentCamera.Room.NearestRooms);
+
+            rooms.AddRange(camera.Room.NearestRooms);
 
             //Player scanned = Helper.RaycastAPlayer(currentCamera, currentCamera.Room, _player.Debug);
 
-            Player scanned = Helper.RaycastPlayer(currentCamera, rooms, _player.Debug);
+            Player scanned = Helper.RaycastPlayer(camera, rooms, _player.Debug);
 
             Log.Info("scanned null? " + (scanned == null));
             if (scanned != null)
@@ -115,11 +113,6 @@ namespace KruacentExiled.AutoScp079.Jobs
                 Log.Info(scanned.Id);
                 _player.RoleNPC.Ping(scanned.Position, PingType.Human, false);
             }
-
-
-
-
-
         }
 
         public void AddJob(Job job,bool hasPriority = false)

@@ -73,7 +73,7 @@ namespace KruacentExiled.AutoScp079
             {
                 FpcRole fpc = nonScp.Role as FpcRole;
 
-                Vector3 start = camera.Position;
+                Vector3 start = Auto079NPC.GetCameraPosition(camera);
                 Vector3 end;
                 Vector3 direction;
 
@@ -141,7 +141,7 @@ namespace KruacentExiled.AutoScp079
             {
                 FpcRole fpc = nonScp.Role as FpcRole;
 
-                Vector3 start = camera.Position;
+                Vector3 start = Auto079NPC.GetCameraPosition(camera);
                 Vector3 end;
                 Vector3 direction;
 

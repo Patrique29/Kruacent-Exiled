@@ -14,12 +14,19 @@ namespace KruacentExiled.Map.Heavy
     public static class BulkDoor049
     {
         private static DoorVariant door;
+
+        public static Room DoorRoom => Room.Get(RoomType.Hcz049);
+        public static DoorVariant Door => door;
         public static void Create()
         {
 
 
-            Room room = Room.List.Where(r => r.Type == RoomType.Hcz049).First();
+            Room room = DoorRoom;
 
+            if(room == null)
+            {
+                throw new Exception("room not found");
+            }
 
             Vector3 pos = new Vector3(-19.7f ,89f, 9f);
             Quaternion rot = Quaternion.identity;

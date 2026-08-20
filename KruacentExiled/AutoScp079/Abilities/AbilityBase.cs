@@ -20,7 +20,7 @@ namespace KruacentExiled.AutoScp079.Abilities
             if (NPC.CurrentPower > Cost)
             {
                 StartAbility(NPC);
-                NPC.CurrentPower -= Cost;
+                NPC.AuxManager.RemoveAux(Cost);
             }
         }
 

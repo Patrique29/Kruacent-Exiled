@@ -2,6 +2,7 @@
 using Exiled.API.Features;
 using KE.Utils.API.Commands;
 using KruacentExiled.AutoScp079;
+using KruacentExiled.AutoScp079.Abilities;
 using KruacentExiled.AutoScp079.Jobs.JobType;
 using System;
 using System.Collections.Generic;
@@ -27,8 +28,8 @@ namespace KruacentExiled.Commands.AutoScp079Commands
 
         public override bool Auto079Command(ArraySegment<string> arguments, Player sender, Auto079NPC npc, out string response)
         {
-            npc.ScanZone(sender.Zone);
 
+            AbilityBase.Get<ScanZoneAbility>().Start(npc);
 
             response = "ok";
             return true;

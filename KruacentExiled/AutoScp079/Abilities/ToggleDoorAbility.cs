@@ -1,5 +1,6 @@
 ﻿using DrawableLine;
 using Exiled.API.Enums;
+using Exiled.API.Features;
 using Exiled.API.Features.Doors;
 using Exiled.Events.Patches.Events.Player;
 using System;
@@ -30,12 +31,16 @@ namespace KruacentExiled.AutoScp079.Abilities
             if (Physics.Raycast(origin, forward, out RaycastHit hitInfo, 50, (int)(LayerMasks.Door | LayerMasks.Default)))
             {
                 Door door = Door.Get(hitInfo.collider.gameObject);
-                DrawableLines.IsDebugModeEnabled = true;
-                DrawableLines.GenerateLine(10, Color.green, origin, hitInfo.point);
+                if (MainPlugin.Instance.Config.Debug)
+                {
+                    DrawableLines.IsDebugModeEnabled = true;
+                    DrawableLines.GenerateLine(10, Color.green, origin, hitInfo.point);
+                }
+                
 
                 if (door != null)
                 {
-
+                    Log.Info("found door");
                     
                     //npc.RoleNPC.DoorStateChanger.GetCostForDoor(door.Base.)
                     npc.ToggleDoor(door);

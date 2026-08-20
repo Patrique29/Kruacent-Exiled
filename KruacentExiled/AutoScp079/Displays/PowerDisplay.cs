@@ -18,6 +18,7 @@ namespace KruacentExiled.AutoScp079.Displays
             CreateHint();
         }
 
+
         protected override string Text()
         {
 
@@ -27,13 +28,20 @@ namespace KruacentExiled.AutoScp079.Displays
             }
             sb.Clear();
 
+            TimeSpan time = Auto079NPC.AuxManager.TimeToMax;
+
             sb.Append(Auto079NPC.CurrentPower)
-                .Append('%');
-
-            
-
-
-
+                .Append('/')
+                .Append(AuxManager.MaxAux)
+                .AppendLine()
+                .Append("regen=")
+                .Append(Auto079NPC.AuxManager.RegenSpeed)
+                .AppendLine()
+                .Append("Time to Max=")
+                .Append(time.ToString())
+                .AppendLine()
+                .Append("time to 40=")
+                .Append(Auto079NPC.AuxManager.TimeTo(40));
             return sb.ToString();
 
         }

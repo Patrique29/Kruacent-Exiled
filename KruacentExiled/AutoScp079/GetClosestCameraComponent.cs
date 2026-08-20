@@ -25,9 +25,12 @@ namespace KruacentExiled.AutoScp079
 
         public bool Paused { get; set; }
 
+        public void Destroy()
+        {
+            Destroy(this);
+        }
 
-
-        private void Update()
+        internal void Update()
         {
 
             if(Paused)

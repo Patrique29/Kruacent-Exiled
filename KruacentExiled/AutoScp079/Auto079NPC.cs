@@ -5,12 +5,12 @@ using Exiled.API.Features.Doors;
 using Exiled.API.Features.Roles;
 using Exiled.API.Features.Toys;
 using Exiled.Events.EventArgs.Player;
+using Exiled.Events.EventArgs.Scp079;
 using KruacentExiled.AutoScp079.Abilities;
 using KruacentExiled.AutoScp079.Displays;
 using KruacentExiled.AutoScp079.Jobs;
 using KruacentExiled.AutoScp079.Jobs.JobType;
 using KruacentExiled.CustomRoles.CustomSCPTeam;
-using PlayerRoles;
 using PlayerRoles.PlayableScps;
 using PlayerRoles.PlayableScps.Scp079.Pinging;
 using System;
@@ -37,9 +37,35 @@ namespace KruacentExiled.AutoScp079
 
         public Camera CurrentCamera => RoleNPC?.Camera;
 
+        /// <summary>
+        /// Ez camera with arm
+        /// </summary>
+        private static List<RoomType> ezCameraType = new List<RoomType>()
+        {
+            RoomType.EzGateA,RoomType.EzGateB,RoomType.EzUpstairsPcs,RoomType.EzCrossing
+        };
+
+        public static Vector3 GetCameraPosition(Camera camera)
+        {
+            if(camera.Zone == ZoneType.Entrance)
+            {
+                if (ezCameraType.Contains(camera.Room.Type))
+                {
+                    //yes the arm camera is backward
+                    return camera.Position - camera.Transform.forward * .5f;
+                }
+                else
+                {
+                    return camera.Position;
+                }
+            }
+            return camera.Position + camera.Transform.forward * .5f;
+        }
         public GetClosestCameraComponent GetClosestCameraComponent { get; }
 
         public Player HumanPlayer { get; }
+
+        public AuxManager AuxManager { get; }
 
 
         private static Dictionary<Camera, Light> _lightUnderCams = null;
@@ -51,7 +77,7 @@ namespace KruacentExiled.AutoScp079
             Light light;
             if (!_lightUnderCams.ContainsKey(newCamera))
             {
-                light = Light.Create(newCamera.Position, null, null, false);
+                light = Light.Create(GetCameraPosition(newCamera), null, null, false);
 
                 light.Color = Color.blue;
 
@@ -87,11 +113,7 @@ namespace KruacentExiled.AutoScp079
         {
             get
             {
-                return RoleNPC.Energy;
-            }
-            set
-            {
-                RoleNPC.Energy = value;
+                return AuxManager.CurrentAux;
             }
         }
 
@@ -119,6 +141,8 @@ namespace KruacentExiled.AutoScp079
             }
 
             
+
+
             Debug = debug;
 
             Log.Debug("creating auto079");
@@ -126,6 +150,9 @@ namespace KruacentExiled.AutoScp079
 
             HumanPlayer = human;
 
+
+            AuxManager = NPC.GameObject.AddComponent<AuxManager>();
+            AuxManager.Init(this);
 
             GetClosestCameraComponent = HumanPlayer.GameObject.AddComponent<GetClosestCameraComponent>();
             GetClosestCameraComponent.Init(HumanPlayer, this);
@@ -137,6 +164,8 @@ namespace KruacentExiled.AutoScp079
             AbilityBase.RegisterAbility();
 
             Auto079Display.CreateDisplay(this);
+
+            Exiled.Events.Handlers.Scp079.Recontained += OnRecontained;
         }
 
 
@@ -199,17 +228,27 @@ namespace KruacentExiled.AutoScp079
         {
             if (RoleNPC.TeslaAbility.IsReady)
             {
-                //remove 5 aux
+                AuxManager.RemoveAux(5);
                 RoleNPC.ActivateTesla(false);
             }
             
             
         }
 
+        private void OnRecontained(RecontainedEventArgs ev)
+        {
+            if(ev.Player == NPC)
+            {
+                Destroy();
+            }
+        }
+
 
         public void Destroy()
         {
+            Exiled.Events.Handlers.Scp079.Recontained -= OnRecontained;
             _instances.Remove(this);
+            GetClosestCameraComponent.Destroy();
             Auto079Display.DestroyAll();
             NPC.Destroy();
         }

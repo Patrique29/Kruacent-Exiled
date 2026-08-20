@@ -1,4 +1,5 @@
 ﻿using Exiled.API.Features;
+using Exiled.Events.EventArgs.Scp079;
 using KE.Utils.API.Interfaces;
 using KruacentExiled.AutoScp079;
 using KruacentExiled.AutoScp079.Jobs.JobType;
@@ -26,7 +27,6 @@ namespace KruacentExiled
         public void UnsubscribeEvents()
         {
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStarted;
-
             Auto079NPC?.Destroy();
             Auto079NPC = null;
         }
@@ -49,7 +49,7 @@ namespace KruacentExiled
 
             try
             {
-                Auto079NPC = new Auto079NPC(firstPlayer, true);
+                Auto079NPC = new Auto079NPC(firstPlayer, MainPlugin.Instance.Config.Debug);
             }
             catch(Exception e)
             {
@@ -59,10 +59,10 @@ namespace KruacentExiled
 
             yield return Timing.WaitForSeconds(2);
 
-            firstPlayer.Teleport(Room.Get(Exiled.API.Enums.RoomType.HczTesla));
+            //firstPlayer.Teleport(Room.Get(Exiled.API.Enums.RoomType.HczTesla));
 
 
-            //Npc test = Npc.Spawn("testping", PlayerRoles.RoleTypeId.ClassD,position:firstPlayer.Position);
+            Npc test = Npc.Spawn("testping", PlayerRoles.RoleTypeId.ClassD,position:firstPlayer.Position);
 
 
             //SwitchCameraJob job = SwitchCameraJob.CreateJob(Camera.Get(Exiled.API.Enums.CameraType.LczCellblockEntry));
