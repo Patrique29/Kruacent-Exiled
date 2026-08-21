@@ -1,4 +1,6 @@
 ﻿using AdminToys;
+using Exiled.API.Enums;
+using Exiled.API.Features;
 using Mirror;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,7 @@ namespace KruacentExiled.ClientPrimitives
 
 
         public static uint PrimitiveAssetId { get; private set; }
+        public static uint TextToyAssetId { get; private set; }
 
 
         public static void Load()
@@ -21,10 +24,16 @@ namespace KruacentExiled.ClientPrimitives
 
             foreach (GameObject prefab in NetworkClient.prefabs.Values)
             {
+                Log.Info(prefab.name);
+                
                 if (prefab.TryGetComponent<PrimitiveObjectToy>(out _))
                 {
                     PrimitiveAssetId = prefab.GetComponent<NetworkIdentity>().assetId;
-                    break;
+                    
+                }
+                if (prefab.TryGetComponent<TextToy>(out _))
+                {
+                    TextToyAssetId = prefab.GetComponent<NetworkIdentity>().assetId;
                 }
             }
 

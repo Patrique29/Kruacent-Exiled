@@ -83,7 +83,7 @@ namespace KruacentExiled.ClientPrimitives
             }
 
             _position = position;
-            Rotation = rotation;
+            _rotation = rotation;
             Scale = scale;
             PrimitiveType = primitiveType;
             Color = color;
