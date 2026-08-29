@@ -170,7 +170,7 @@ namespace KruacentExiled.CustomItems.API.Features
                     if(ev.Pickup.Type == Type)
                     {
                         SetItem(ev.Pickup);
-                        Log.Debug("setitem at " + ev.Pickup.Position);
+                        Log.Debug("setitem at " + ev.Pickup.Position + " at " + spawnpoint.Type);
                     }
                     
                 }
