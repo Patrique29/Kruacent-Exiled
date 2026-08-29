@@ -24,7 +24,7 @@ namespace KruacentExiled.Map.Others.BlackoutNDoor
 
             foreach(Lift lift in Lift.List)
             {
-                if(lift.Doors.Any(d => d.Zone == zone))
+                if(lift.Doors.Any(d => d.Zone == zone && !d.IsLocked))
                 {
                     _lifts.Add(lift);
                     lift.ChangeLock(Interactables.Interobjects.DoorUtils.DoorLockReason.NoPower);
