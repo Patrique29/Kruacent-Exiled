@@ -24,7 +24,6 @@ namespace KruacentExiled.ClientPrimitives
 
             foreach (GameObject prefab in NetworkClient.prefabs.Values)
             {
-                Log.Info(prefab.name);
                 
                 if (prefab.TryGetComponent<PrimitiveObjectToy>(out _))
                 {
