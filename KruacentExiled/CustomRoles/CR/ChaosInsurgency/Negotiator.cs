@@ -37,6 +37,11 @@ namespace KruacentExiled.CustomRoles.CR.ChaosInsurgency
 
         public override float SpawnChance { get; set; } = 100;
 
+        public override HashSet<string> Abilities => new HashSet<string>()
+        {
+            "Convert"
+        };
+
 
         public override List<string> Inventory { get; set; } = new List<string>()
         {
