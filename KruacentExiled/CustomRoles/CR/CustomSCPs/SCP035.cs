@@ -2,6 +2,7 @@
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.API.Features.Pickups;
+using Exiled.API.Features.Pools;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Exiled.Events.EventArgs.Scp096;
@@ -16,9 +17,11 @@ using KruacentExiled.CustomItems.API.Features;
 using KruacentExiled.CustomItems.API.Interface;
 using KruacentExiled.CustomRoles.API.Features;
 using KruacentExiled.CustomRoles.CustomSCPTeam;
+using LabApi.Events.Arguments.PlayerEvents;
 using MEC;
 using PlayerRoles;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VoiceChat.Networking;
 
@@ -97,6 +100,7 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
 
         protected override void SubscribeEvents()
         {
+            _intercom = HashSetPool<Player>.Pool.Get();
             Exiled.Events.Handlers.Player.Hurting += OnHurting;
             Exiled.Events.Handlers.Player.Dying += OnDying;
             Exiled.Events.Handlers.Player.SearchingPickup += OnSearchingPickup;
@@ -106,7 +110,8 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
             Exiled.Events.Handlers.Player.VoiceChatting += OnVoiceChatting;
             Exiled.Events.Handlers.Scp096.AddingTarget += OnAddingTarget;
             Exiled.Events.Handlers.Scp173.AddingObserver += OnAddingObserver;
-
+            LabApi.Events.Handlers.PlayerEvents.UsingIntercom += OnUsingIntercom;
+            LabApi.Events.Handlers.PlayerEvents.UsedIntercom += OnUsedIntercom;
 
             base.SubscribeEvents();
         }
@@ -122,6 +127,9 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
             Exiled.Events.Handlers.Player.UsingItem -= OnUsingItem;
             Exiled.Events.Handlers.Scp096.AddingTarget -= OnAddingTarget;
             Exiled.Events.Handlers.Scp173.AddingObserver -= OnAddingObserver;
+            LabApi.Events.Handlers.PlayerEvents.UsingIntercom -= OnUsingIntercom;
+            LabApi.Events.Handlers.PlayerEvents.UsedIntercom -= OnUsedIntercom;
+            HashSetPool<Player>.Pool.Return(_intercom);
             base.UnsubscribeEvents();
         }
         private static HintPosition position = new RemainingPlayerPosition();
@@ -134,6 +142,27 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
             Exiled.API.Features.Cassie.CustomScpTermination("SCP 0 3 5", ev.DamageHandler);
             
         }
+
+
+        private HashSet<Player> _intercom;
+
+        private void OnUsingIntercom(PlayerUsingIntercomEventArgs ev)
+        {
+            if (Check(ev.Player))
+            {
+                _intercom.Add(ev.Player);
+                Log.Warn("using intercom");
+            }
+        }
+        private void OnUsedIntercom(PlayerUsedIntercomEventArgs ev)
+        {
+            if (Check(ev.Player))
+            {
+                _intercom.Remove(ev.Player);
+                Log.Warn("used intercom");
+            }
+        }
+        
 
         private void OnAddingObserver(AddingObserverEventArgs ev)
         {
@@ -160,10 +189,11 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
         {
             Player player = ev.Player;
 
-            
             VoiceMessage msg = ev.VoiceMessage;
 
-            if(msg.Channel == VoiceChat.VoiceChatChannel.ScpChat)
+            Log.Info("msg.Channel =" + msg.Channel);
+
+            if (msg.Channel == VoiceChat.VoiceChatChannel.ScpChat)
             {
                 msg.Channel = VoiceChat.VoiceChatChannel.RoundSummary;
 
@@ -177,26 +207,42 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
             }
 
 
+            
 
             if (Check(player))
             {
-                msg.Channel = VoiceChat.VoiceChatChannel.RoundSummary;
 
-                foreach (ReferenceHub hub in SCPTeam.SCPs)
+                HashSet<ReferenceHub> receiver;
+                if (_intercom.Contains(player))
+                {
+                    msg.Channel = VoiceChat.VoiceChatChannel.Intercom;
+                    receiver = ReferenceHub.AllHubs;
+  
+                }
+                else
+                {
+                    msg.Channel = VoiceChat.VoiceChatChannel.RoundSummary;
+                    receiver = SCPTeam.SCPs.ToHashSet();
+
+                }
+
+
+                foreach (ReferenceHub hub in receiver)
                 {
                     if (hub != player.ReferenceHub)
                     {
                         hub.connectionToClient.Send(msg);
                     }
-                    
+
                 }
+
+
                 ev.IsAllowed = false;
             }
         }
 
         protected override void RoleAdded(Player player)
         {
-            PlayerDisplay dis = PlayerDisplay.Get(player);
             DisplayHandler.Instance.CreateAuto(player, (args) => GetPlayers(args), position.HintPlacement,HintServiceMeow.Core.Enum.HintSyncSpeed.Normal);
             DisplayHandler.Instance.CreateAuto(player, (args) => GetLogo(args), logoposition.HintPlacement,HintServiceMeow.Core.Enum.HintSyncSpeed.Normal);
 
