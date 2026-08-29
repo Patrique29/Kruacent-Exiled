@@ -8,27 +8,24 @@ using UnityEngine;
 namespace KruacentExiled.Commands.DebugCommands.ClientPrimitives
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    internal class SpawnAtPlayer : KECommand
+    internal class MovePrimitive : KECommand
     {
-        public override string Command => "spawnclientprimitive";
+        public override string Command => "moveprimitive";
 
-        public override string[] Aliases => new string[] { "scp" };
+        public override string[] Aliases => new string[] { "mp" };
 
         public override string Description => "";
 
         public override string[] Usage => new string[0];
 
 
-        public static ClientSidePrimitive Primitive;
 
         public override bool ExecuteCommand(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             Player player = Player.Get(sender);
 
-            Primitive = new ClientSidePrimitive(player.Position,Quaternion.identity,Vector3.one,PrimitiveType.Cube,Color.blue,AdminToys.PrimitiveFlags.Visible,player);
-
-            Primitive.SpawnClientPrimitive();
-
+            SpawnAtPlayer.Primitive.Position = player.Position;
+           
             response = "ok";
 
             return true;
