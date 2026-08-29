@@ -2,17 +2,22 @@
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
+using Exiled.API.Features.Lockers;
 using Exiled.API.Features.Pools;
 using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API;
 using Exiled.CustomItems.API.Features;
+using Exiled.Events.EventArgs.Map;
 using Exiled.Events.EventArgs.Player;
 using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.Feeds;
+using KE.Utils.API.Features;
 using KE.Utils.API.Translations;
 using KruacentExiled.CustomItems;
+using KruacentExiled.CustomItems.API.Core.Lights;
 using KruacentExiled.CustomItems.API.Exceptions;
 using KruacentExiled.CustomItems.API.Interface;
+using LabApi.Events.Arguments.ServerEvents;
 using PlayerRoles.SpawnData;
 using System;
 using System.Collections.Generic;
@@ -118,6 +123,7 @@ namespace KruacentExiled.CustomItems.API.Features
             Name = Name.RemoveSpaces();
 
             _nameLookup.Add(Name, this);
+            InternalSubscribeEvent();
             SubscribeEvents();
 
             OneTimeInit();
@@ -126,16 +132,99 @@ namespace KruacentExiled.CustomItems.API.Features
             TranslationHub.Add(CustomItemTranslationId, translate);
         }
 
+        private void InternalSubscribeEvent()
+        {
+            Exiled.Events.Handlers.Map.FillingLocker += InternalOnFillingLocker;
+            Exiled.Events.Handlers.Map.Generating += InternalOnGenerating;
+        }
+
+        private void InternalUnsubscribeEvent()
+        {
+            Exiled.Events.Handlers.Map.FillingLocker -= InternalOnFillingLocker;
+            Exiled.Events.Handlers.Map.Generating -= InternalOnGenerating;
+        }
+
+
+        protected virtual uint MaxPerLocker { get; } = 1;
+        protected virtual List<LockerSpawnPoint> LockerSpawnPoint { get; } = null;
 
         public override void Destroy()
         {
+            InternalUnsubscribeEvent();
             UnsubscribeEvents();
             _nameLookup.Remove(Name);
             _typeLookup.Remove(GetType());
         }
 
 
+        private Dictionary<Locker, uint> _numberInLocker = null;
 
+        private void InternalOnGenerating(GeneratingEventArgs ev)
+        {
+
+            if (_numberInLocker != null)
+            {
+                _numberInLocker.Clear();
+            }
+            else
+            {
+                _numberInLocker = new Dictionary<Locker, uint>();
+            }
+
+        }
+
+        private void InternalOnFillingLocker(FillingLockerEventArgs ev)
+        {
+            if (LockerSpawnPoint == null) return;
+
+            //Log.Info("filling locker : " + ev.Locker.Type);
+
+            Locker locker = ev.Locker;
+
+            if(_numberInLocker.TryGetValue(locker,out uint value) && value >= MaxPerLocker)
+            {
+                KELog.Debug("max got");
+                return;
+            }
+
+
+
+
+            foreach (LockerSpawnPoint spawnpoint in LockerSpawnPoint)
+            {
+                if (!spawnpoint.UseChamber) continue;
+
+                if (spawnpoint.Type != locker.Type) continue;
+                if (spawnpoint.Zone != locker.Zone) continue;
+
+                double rng = Exiled.Loader.Loader.Random.NextDouble() * 100.0;
+                double luck = (double)spawnpoint.Chance;
+
+                bool luckCheck = rng < luck;
+
+                KELog.Debug($"luck check : {rng} < {luck} : {luckCheck}");
+
+                if (!luckCheck)
+                {
+                    continue;
+                }
+
+                if (ev.Pickup.Type == Type)
+                {
+                    SetItem(ev.Pickup);
+                    if (!_numberInLocker.ContainsKey(locker))
+                    {
+                        _numberInLocker[locker] = 1;
+                    }
+                    else
+                    {
+                        _numberInLocker[locker]++;
+                    }
+                    KELog.Debug("setitem at " + ev.Pickup.Position + " at " + spawnpoint.Type);
+                }
+            }
+
+        }
         
 
         public static T Get<T>() where T : KECustomItem
@@ -234,12 +323,6 @@ namespace KruacentExiled.CustomItems.API.Features
 
 
 
-        public void ReplacePickup(Pickup pickup)
-        {
-            Vector3 position = pickup.Position;
-            pickup.Destroy();
-            Spawn(position);
-        }
 
 
         internal static void Message(CustomItem c, Player player, bool pickedUp = false)
@@ -366,6 +449,7 @@ namespace KruacentExiled.CustomItems.API.Features
             pickup.Weight = Weight;
 
             TrackedSerials.Add(pickup.Serial);
+            LightsHandler.AddPickup(pickup.Base);
         }
 
         public static bool IsConsideredViolent(KECustomItem item)
