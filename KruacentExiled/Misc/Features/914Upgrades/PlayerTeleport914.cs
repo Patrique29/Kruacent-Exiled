@@ -1,5 +1,6 @@
 ﻿using Exiled.API.Enums;
 using Exiled.API.Features;
+using Exiled.API.Features.Roles;
 using Exiled.Events.EventArgs.Scp914;
 using InventorySystem.Items.Usables.Scp330;
 using KE.Utils.API.Features;
@@ -13,44 +14,20 @@ namespace KE.Misc.Features._914Upgrades
 {
     public class PlayerTeleport914 : Base914PlayerUpgrade
     {
-        public float ChanceTpEntrance = 1;
+        public const float ChanceTpEntrance = 1;
         protected override float Chance => 100;
         protected override bool OnUpgradingPlayer(UpgradingPlayerEventArgs ev)
         {
             KELog.Debug("Upgrade teleport");
             Player player = ev.Player;
-            Room room = null;
 
-            if(!(player.Role is IFpcRole fpc))
+            if(!(player.Role is FpcRole fpc))
             {
                 return false;
             }
 
             //TeleportOutcome.GetBestExitPosition(fpc);
-            if (ev.KnobSetting == Scp914KnobSetting.Fine && LuckCheck(ChanceTpEntrance))
-            {
-                try
-                {
-                    room = ZoneType.Entrance.RandomSafeRoom();
-                }
-                catch (Exception)
-                {
-                    room = Room.Random(ZoneType.Entrance);
-                }
-                
-                
-            }
-            if(ev.KnobSetting == Scp914KnobSetting.Coarse && LuckCheck(25))
-            {
-                try
-                {
-                    room = ZoneType.LightContainment.RandomSafeRoom();
-                }
-                catch (Exception)
-                {
-                    room = Room.Random(ZoneType.LightContainment);
-                }
-            }
+            Room room = GetRoom(ev.KnobSetting);
 
             if (room != null)
             {
@@ -68,6 +45,42 @@ namespace KE.Misc.Features._914Upgrades
         }
 
 
+
+        public static Room GetRoom(Scp914KnobSetting setting)
+        {
+            Room room = null;
+
+            KELog.Debug("tp entrance");
+            if (setting == Scp914KnobSetting.Fine && LuckCheck(ChanceTpEntrance))
+            {
+                try
+                {
+                    room = ZoneType.Entrance.RandomSafeRoom();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("error trying to get a room in entrance : " + e);
+                    room = Room.Random(ZoneType.Entrance);
+                }
+
+
+            }
+            KELog.Debug("tp light");
+            if (setting == Scp914KnobSetting.Coarse && LuckCheck(25))
+            {
+                try
+                {
+                    room = ZoneType.LightContainment.RandomSafeRoom();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("error trying to get a room in light : " + e );
+                    room = Room.Random(ZoneType.LightContainment);
+                }
+            }
+
+            return room;
+        }
 
 
     }
