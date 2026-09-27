@@ -1,7 +1,6 @@
 ﻿using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
-using Exiled.API.Features.Items;
 using Exiled.API.Features.Lockers;
 using Exiled.API.Features.Pools;
 using Exiled.API.Features.Spawn;
@@ -13,19 +12,15 @@ using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.Feeds;
 using KE.Utils.API.Features;
 using KE.Utils.API.Translations;
-using KruacentExiled.CustomItems;
 using KruacentExiled.CustomItems.API.Core.Lights;
 using KruacentExiled.CustomItems.API.Exceptions;
 using KruacentExiled.CustomItems.API.Interface;
-using LabApi.Events.Arguments.ServerEvents;
-using PlayerRoles.SpawnData;
+using KruacentExiled.CustomSpawnPoint.Spawned;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using UnityEngine;
-using static KruacentExiled.CustomSpawnPoint.PoseRoomSpawnPointHandler;
 using Pickup = Exiled.API.Features.Pickups.Pickup;
 
 namespace KruacentExiled.CustomItems.API.Features
@@ -269,16 +264,14 @@ namespace KruacentExiled.CustomItems.API.Features
             uint num = 0;
             foreach (SpawnPoint spawnpoint in spawnPoints.Where(sp => sp is RoomSpawnPoint))
             {
-                Pickup pickup;
+                Pickup pickup = null;
                 if (Exiled.Loader.Loader.Random.NextDouble() * 100.0 >= (double)spawnpoint.Chance || limit != 0 && num >= limit)
                 {
                     continue;
                 }
                 spawns.Remove(spawnpoint);
                 RoomSpawnPoint room = spawnpoint as RoomSpawnPoint;
-                ItemSpawn spawn = UseRandomPose(room.Room);
-                Log.Debug($"spawning {Name} in {room.Room}" );
-                Log.Debug($"remaining spawn position in {room.Room} = {UsablePoses.Count(p => p.roomType == room.Room)}");
+                RoomCustomItemPoint spawn = RoomCustomItemPoint.UseRandom(room.Room);
 
                 if (spawn != null)
                 {
@@ -292,8 +285,14 @@ namespace KruacentExiled.CustomItems.API.Features
                         try
                         {
                             lockerSpawnPoint.GetSpawningInfo(out var _, out var chamber, out var position);
-                            pickup = Spawn(position);
-                            chamber?.AddItem(pickup);
+
+                            if(chamber.Base.Content.Count == 0)
+                            {
+                                pickup = Spawn(position);
+                                chamber?.AddItem(pickup);
+                            }
+
+                            
                         }
                         catch (Exception ex)
                         {

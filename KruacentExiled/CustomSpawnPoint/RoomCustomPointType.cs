@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace KruacentExiled.CustomSpawnPoint
 {
-    internal class RoomTeleportPoint
+    public enum RoomCustomPointType
     {
+        Unknown = -1,
+        CustomItemSpawn,
+        Teleport
+
     }
 }

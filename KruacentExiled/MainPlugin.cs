@@ -3,7 +3,10 @@ using Exiled.API.Interfaces;
 using KE.Utils.API;
 using KruacentExiled.Audio;
 using KruacentExiled.ClientPrimitives;
+using KruacentExiled.CustomSpawnPoint;
+using KruacentExiled.CustomSpawnPoint.Spawned;
 using KruacentExiled.DebugSettings;
+using LabApi.Events.Arguments.ServerEvents;
 using MEC;
 using System;
 using System.Linq;
@@ -69,11 +72,17 @@ namespace KruacentExiled
             AudioHandler.SubscribeEvents();
 
 
+            RoomCustomPoint.Populate();
+
             Timing.CallDelayed(10, () =>
             {
                 Loader.Load();
             });
 
+
+
+            Exiled.Events.Handlers.Map.Generated += OnGenerated;
+            LabApi.Events.Handlers.ServerEvents.RoundEnded += OnRoundEnded;
 
             base.OnEnabled();
         }
@@ -88,7 +97,8 @@ namespace KruacentExiled
                 Log.Info(plugin.Name + " has been disabled!");
 
             }
-
+            Exiled.Events.Handlers.Map.Generated -= OnGenerated;
+            LabApi.Events.Handlers.ServerEvents.RoundEnded -= OnRoundEnded;
             AudioHandler.UnsubscribeEvents();
 
             Instance = null;
@@ -96,6 +106,23 @@ namespace KruacentExiled
 
             base.OnDisabled();
         }
+
+
+        #region events
+
+        public void OnGenerated()
+        {
+            Log.Warn("map generated");
+            RoomSpawnedCustomPoint.SpawnAll();
+        }
+
+        public void OnRoundEnded(RoundEndedEventArgs ev)
+        {
+            RoomSpawnedCustomPoint.DestroyAll();
+        }
+
+
+        #endregion
 
     }
 
@@ -106,7 +133,6 @@ namespace KruacentExiled
     {
         public bool IsEnabled { get; set; } = true;
         public bool Debug { get; set; } = false;
-
 
         public CustomRoles.Config CustomRoleConfig { get; set; } = new CustomRoles.Config();
         public CustomItems.Config CustomItemConfig { get; set; } = new CustomItems.Config();

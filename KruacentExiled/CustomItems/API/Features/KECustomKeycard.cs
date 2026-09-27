@@ -1,22 +1,14 @@
 ﻿using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
-using Exiled.API.Features.Doors;
 using Exiled.API.Features.Items;
 using Exiled.API.Features.Items.Keycards;
 using Exiled.API.Features.Pickups;
-using Exiled.API.Features.Spawn;
 using Exiled.API.Interfaces.Keycards;
-using Exiled.CustomItems.API.Features;
 using InventorySystem.Items.Keycards;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using YamlDotNet.Core.Tokens;
-using static KruacentExiled.CustomSpawnPoint.PoseRoomSpawnPointHandler;
 
 namespace KruacentExiled.CustomItems.API.Features
 {
