@@ -2,6 +2,7 @@
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.Events.EventArgs.Player;
+using KruacentExiled.CustomRoles.CustomSCPTeam;
 using KruacentExiled.GlobalEventFramework.GEFE.API.Features;
 using KruacentExiled.GlobalEventFramework.GEFE.API.Interfaces;
 using MEC;
@@ -44,7 +45,7 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
 
         private void PlayerYapping(VoiceChattingEventArgs ev)
         {
-            if (ev.Player.Role.Side == Side.Scp || ev.Player.Role == RoleTypeId.Tutorial) return;
+            if (SCPTeam.IsSCP(ev.Player.ReferenceHub)) return;
 
             int decodedLength = _decoder.Decode(ev.VoiceMessage.Data, ev.VoiceMessage.DataLength, _pcmBuffer);
             float maxVolume = 0f;
@@ -58,7 +59,7 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
                     maxVolume = absValue;
                 }
             }
-
+            
             if (maxVolume > MaxVolume)
             {
                 ev.Player.Explode();
