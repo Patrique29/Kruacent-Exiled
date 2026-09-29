@@ -264,10 +264,17 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
         /// </summary>
         public static bool TryGet(string name, out KEEvents globalEvent)
         {
+            globalEvent = null;
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException("name can't be null or empty");
+                return false;
             }
+
+            if (!_nameLookup.ContainsKey(name))
+            {
+                return false;
+            }
+
             globalEvent = Get(name);
 
             return globalEvent != null;
