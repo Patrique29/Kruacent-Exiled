@@ -48,6 +48,12 @@ namespace KruacentExiled.GlobalEventFramework.Examples.GE
                 for (int i = 0; i < NbGrenadeSpawned; i++)
                 {
                     Room randomRoom = Room.Random();
+
+                    if (!RoomCustomPointHandler.HaveASpawnedPoint(randomRoom))
+                    {
+                        continue;
+                    }
+
                     foreach (RoomSpawnedCustomPoint point in RoomCustomPointHandler.GetAll(randomRoom, RoomCustomPointType.Teleport))
                     {
                         ((ExplosiveGrenade)Item.Create(ItemType.GrenadeHE)).SpawnActive(point.Position);
