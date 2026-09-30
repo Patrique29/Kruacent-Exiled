@@ -191,7 +191,7 @@ namespace KruacentExiled.CustomRoles.CR.CustomSCPs
 
             VoiceMessage msg = ev.VoiceMessage;
 
-            Log.Info("msg.Channel =" + msg.Channel);
+            //Log.Info("msg.Channel =" + msg.Channel);
 
             if (msg.Channel == VoiceChat.VoiceChatChannel.ScpChat)
             {
