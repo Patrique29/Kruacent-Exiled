@@ -107,17 +107,30 @@ namespace KruacentExiled.CustomRoles.Abilities
             }
 
 
-            if(CustomItem.TryGet(item,out CustomItem ci))
+            try
             {
-                ci.Give(player);
+                if (CustomItem.TryGet(item, out CustomItem ci))
+                {
+                    ci.Give(player);
+                }
+                else
+                {
+                    Item newitem = item.Clone();
+                    newitem.Give(player);
+                }
             }
-            else
+            finally
             {
-                Item newitem = item.Clone();
-                newitem.Give(player);
+                if(item != null)
+                {
+                    thiefed.RemoveItem(item);
+                }
+                
             }
+
             
-            thiefed.RemoveItem(item);
+            
+            
         }
 
 
