@@ -1,5 +1,6 @@
 ﻿using Exiled.API.Features;
 using Exiled.API.Interfaces;
+using HarmonyLib;
 using KE.Utils.API;
 using KruacentExiled.Audio;
 using KruacentExiled.ClientPrimitives;
@@ -24,6 +25,8 @@ namespace KruacentExiled
 
 
         public static AudioHandler AudioHandler { get; private set; }
+
+        private static Harmony harmony;
 
         public override void OnEnabled()
         {
@@ -66,7 +69,8 @@ namespace KruacentExiled
                 }
 
             }
-
+            //harmony = new Harmony("KEMainPlugin");
+            //harmony.PatchAll();
 
             AudioHandler = new AudioHandler(Config.Debug);
             AudioHandler.SubscribeEvents();
@@ -89,6 +93,9 @@ namespace KruacentExiled
 
         public override void OnDisabled()
         {
+
+            //harmony.UnpatchAll("KEMainPlugin");
+
             for (int i = 0; i < plugins.Length; i++)
             {
                 KEPlugin plugin = plugins[i];
