@@ -106,16 +106,21 @@ namespace KruacentExiled.CustomSpawnPoint.Spawned
                 _dict[Room].Remove(this);
             }
             OnDestroy();
+            
 
+            
+            if (debugPrimitive.GameObject == null)
+            {
+                debugPrimitive?.Destroy();
+            }
 
-            debugPrimitive?.Destroy();
             IsValid = false;
 
         }
 
         protected virtual void OnDestroy()
         {
-
+            
         }
         protected RoomSpawnedCustomPoint(RoomCustomPoint roomCustomPoint,Room room,bool temporary=false)
         {

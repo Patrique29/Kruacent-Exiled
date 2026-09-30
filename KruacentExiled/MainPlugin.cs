@@ -87,6 +87,7 @@ namespace KruacentExiled
 
             Exiled.Events.Handlers.Map.Generated += OnGenerated;
             LabApi.Events.Handlers.ServerEvents.RoundEnded += OnRoundEnded;
+            LabApi.Events.Handlers.ServerEvents.RoundRestarted += OnRoundRestarted;
 
             base.OnEnabled();
         }
@@ -106,6 +107,7 @@ namespace KruacentExiled
             }
             Exiled.Events.Handlers.Map.Generated -= OnGenerated;
             LabApi.Events.Handlers.ServerEvents.RoundEnded -= OnRoundEnded;
+            LabApi.Events.Handlers.ServerEvents.RoundRestarted -= OnRoundRestarted;
             AudioHandler.UnsubscribeEvents();
 
             Instance = null;
@@ -124,6 +126,11 @@ namespace KruacentExiled
         }
 
         public void OnRoundEnded(RoundEndedEventArgs ev)
+        {
+            RoomSpawnedCustomPoint.DestroyAll();
+        }
+
+        public void OnRoundRestarted()
         {
             RoomSpawnedCustomPoint.DestroyAll();
         }

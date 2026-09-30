@@ -32,6 +32,7 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
 
                 Exiled.Events.Handlers.Server.RoundStarted += OnRoundStarted;
                 Exiled.Events.Handlers.Server.RoundEnded += OnEndingRound;
+                LabApi.Events.Handlers.ServerEvents.RoundRestarted += OnRoundRestarted;
                 LabApi.Events.Handlers.ServerEvents.MapGenerating += OnMapGenerating;
 
                 _eventsub = true;
@@ -44,6 +45,7 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
                 if (!_eventsub) return;
                 Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStarted;
                 Exiled.Events.Handlers.Server.RoundEnded -= OnEndingRound;
+                LabApi.Events.Handlers.ServerEvents.RoundRestarted -= OnRoundRestarted;
                 LabApi.Events.Handlers.ServerEvents.MapGenerating -= OnMapGenerating;
 
                 _eventsub = false;
@@ -56,6 +58,13 @@ namespace KruacentExiled.GlobalEventFramework.GEFE.API.Features
             private void OnEndingRound(RoundEndedEventArgs _)
             {
                 Log.Warn("ending round");
+                DisableEvents(_activeGE);
+            }
+
+
+            private void OnRoundRestarted()
+            {
+                Log.Warn("restarted round");
                 DisableEvents(_activeGE);
             }
             private void OnRoundStarted()
