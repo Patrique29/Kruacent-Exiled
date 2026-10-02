@@ -172,8 +172,6 @@ namespace KruacentExiled.CustomItems.API.Features
         {
             if (LockerSpawnPoint == null) return;
 
-            //Log.Info("filling locker : " + ev.Locker.Type);
-
             Locker locker = ev.Locker;
 
             if(_numberInLocker.TryGetValue(locker,out uint value) && value >= MaxPerLocker)
@@ -197,7 +195,7 @@ namespace KruacentExiled.CustomItems.API.Features
 
                 bool luckCheck = rng < luck;
 
-                KELog.Debug($"luck check : {rng} < {luck} : {luckCheck}");
+                KELog.Debug($"luck check of {Name} at {spawnpoint.Position} ({spawnpoint.Name})  : {luckCheck}");
 
                 if (!luckCheck)
                 {

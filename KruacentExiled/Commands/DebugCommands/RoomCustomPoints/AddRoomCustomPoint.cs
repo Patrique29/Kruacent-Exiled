@@ -1,6 +1,7 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
 using KE.Utils.API.Commands;
+using KE.Utils.API.Features;
 using KruacentExiled.CustomSpawnPoint;
 using KruacentExiled.CustomSpawnPoint.Spawned;
 using KruacentExiled.Extensions;
@@ -73,8 +74,13 @@ namespace KruacentExiled.Commands.DebugCommands.RoomCustomPoints
                 }
             }
 
+            if(Spawned != null)
+            {
+                KELog.Debug("destroy old spawned");
+                Spawned.Destroy();
+            }
 
-            Spawned?.Destroy();
+            
 
 
             Point = new RoomCustomPoint(room.Type, position , rotation, type);

@@ -109,7 +109,7 @@ namespace KruacentExiled.CustomSpawnPoint.Spawned
             
 
             
-            if (debugPrimitive.GameObject == null)
+            if (debugPrimitive.GameObject != null)
             {
                 debugPrimitive?.Destroy();
             }
