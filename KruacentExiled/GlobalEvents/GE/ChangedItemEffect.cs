@@ -25,7 +25,7 @@ namespace KruacentExiled.GlobalEvents.GE
             "Roulette russe"
         };
         ///<inheritdoc/>
-        public override int WeightedChance { get; set; } = 0;
+        public override int DefaultWeightedChance { get; } = 0;
 
         public Dictionary<ItemType, ItemType> newEffects;
         public Dictionary<CandyKindID, CandyKindID> newCandyEffects;

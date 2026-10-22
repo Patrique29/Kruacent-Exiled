@@ -22,7 +22,7 @@ namespace KruacentExiled.GlobalEvents.GE
     {
         public override string Name { get; set; } = "SwapProtocol";
         public override string Description { get; } = "EEEEEEEET c'est parti la roulette tourne";
-        public override int WeightedChance { get; set; } = 0;
+        public override int DefaultWeightedChance { get; } = 0;
 
         private int numberSwap = 0;
         public int NumberOfSwap => numberSwap;

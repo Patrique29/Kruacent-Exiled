@@ -12,7 +12,7 @@
         ///<inheritdoc/>
         public override string Description => "Crazy Cassie !";
         ///<inheritdoc/>
-        public override int WeightedChance { get; set; } = 1;
+        public override int DefaultWeightedChance { get; } = 1;
 
         /// <summary>
         /// The cooldown between 2 cassie event

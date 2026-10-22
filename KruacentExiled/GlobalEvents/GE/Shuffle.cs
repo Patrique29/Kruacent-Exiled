@@ -21,7 +21,7 @@ namespace KruacentExiled.GlobalEvents.GE
         ///<inheritdoc/>
         public override string Description { get; } = "et ça fait roomba café dans le scp";
         ///<inheritdoc/>
-        public override int WeightedChance { get; set; } = 0;
+        public override int DefaultWeightedChance { get; } = 0;
         public override ImpactLevel ImpactLevel => ImpactLevel.VeryHigh;
         private List<Player> players;
         private List<Vector3> pos;
