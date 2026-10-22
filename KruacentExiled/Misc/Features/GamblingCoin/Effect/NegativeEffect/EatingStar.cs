@@ -37,7 +37,7 @@ public class EatingStar : IDurationEffect
 
         foreach (AudioClipPlayback clip in c.Values)
         {
-            _clips[player] = clip;
+            _clips.Add(player,clip);
         }
 
 
@@ -73,6 +73,9 @@ public class EatingStar : IDurationEffect
     {
         Timing.KillCoroutines(_coroutines);
         Light light = _lights[player];
+
+
+
 
         foreach(var kvp in _clips)
         {
