@@ -12,7 +12,7 @@ public class EatingStar : IDurationEffect
 {
     public string Name { get; set; } = "EatingStar";
     public string Message { get; set; } = "Eating the disco ball wasn't good idea";
-    public int Weight { get; set; } = 2;
+    public int Weight { get; set; } = 7;
     public EffectType Type { get; set; } = EffectType.Negative;
 
 
@@ -35,9 +35,9 @@ public class EatingStar : IDurationEffect
 
         var c = AudioHandler.Instance.PlayToAll(SoundType.Noise, "starman", player.GameObject, 50);
 
-        foreach(AudioClipPlayback clip in c.Values)
+        foreach (AudioClipPlayback clip in c.Values)
         {
-            _clips.Add(player, clip);
+            _clips.Add(player,clip);
         }
 
 
@@ -73,6 +73,9 @@ public class EatingStar : IDurationEffect
     {
         Timing.KillCoroutines(_coroutines);
         Light light = _lights[player];
+
+
+
 
         foreach(var kvp in _clips)
         {

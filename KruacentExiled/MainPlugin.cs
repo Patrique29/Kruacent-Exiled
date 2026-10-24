@@ -1,9 +1,20 @@
-﻿using Exiled.API.Features;
+﻿using Exiled.API.Enums;
+using Exiled.API.Features;
+using Exiled.API.Features.Items;
+using Exiled.API.Features.Pickups;
 using Exiled.API.Interfaces;
+using HarmonyLib;
 using KE.Utils.API;
+using KE.Utils.API.Features;
 using KruacentExiled.Audio;
+using KruacentExiled.ClientPrimitives;
+using KruacentExiled.CustomSpawnPoint;
+using KruacentExiled.CustomSpawnPoint.Spawned;
 using KruacentExiled.DebugSettings;
+using LabApi.Events.Arguments.ServerEvents;
+using MEC;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace KruacentExiled
@@ -20,6 +31,8 @@ namespace KruacentExiled
 
         public static AudioHandler AudioHandler { get; private set; }
 
+        private static Harmony harmony;
+
         private TestEvent TestEvent = null;
 
         public override void OnEnabled()
@@ -27,12 +40,11 @@ namespace KruacentExiled
             Instance = this;
 
             KE.Utils.API.Sounds.SoundPlayer.Load();
-
+            
             plugins = new KEPlugin[]
             {
                 new CustomRoles.MainPlugin(),
-                new GlobalEventFramework.MainPlugin(),
-                new GlobalEventFramework.Examples.MainPlugin(),
+                new GlobalEvents.MainPlugin(),
                 new CustomItems.MainPlugin(),
                 new Misc.MainPlugin(),
                 new Map.MainPlugin(),
@@ -63,22 +75,34 @@ namespace KruacentExiled
                 }
 
             }
+            //harmony = new Harmony("KEMainPlugin");
+            //harmony.PatchAll();
 
             AudioHandler = new AudioHandler(Config.Debug);
             AudioHandler.SubscribeEvents();
 
-            if (Config.Debug)
+
+            RoomCustomPoint.Populate();
+
+            Timing.CallDelayed(10, () =>
             {
-                TestEvent = new TestEvent();
-                TestEvent.SubscribeEvents();
-            }
-            
+                Loader.Load();
+            });
+
+
+
+            Exiled.Events.Handlers.Map.Generated += OnGenerated;
+            LabApi.Events.Handlers.ServerEvents.RoundEnded += OnRoundEnded;
+            LabApi.Events.Handlers.ServerEvents.RoundRestarted += OnRoundRestarted;
 
             base.OnEnabled();
         }
 
         public override void OnDisabled()
         {
+
+            //harmony.UnpatchAll("KEMainPlugin");
+
             for (int i = 0; i < plugins.Length; i++)
             {
                 KEPlugin plugin = plugins[i];
@@ -87,9 +111,10 @@ namespace KruacentExiled
                 Log.Info(plugin.Name + " has been disabled!");
 
             }
-            TestEvent?.UnsubscribeEvents();
+            Exiled.Events.Handlers.Map.Generated -= OnGenerated;
+            LabApi.Events.Handlers.ServerEvents.RoundEnded -= OnRoundEnded;
+            LabApi.Events.Handlers.ServerEvents.RoundRestarted -= OnRoundRestarted;
             AudioHandler.UnsubscribeEvents();
-
 
             Instance = null;
             AudioHandler = null;
@@ -97,6 +122,67 @@ namespace KruacentExiled
 
             base.OnDisabled();
         }
+
+
+        #region events
+
+        public void OnGenerated()
+        {
+            Log.Warn("map generated");
+            RoomSpawnedCustomPoint.SpawnAll();
+
+            Timing.CallDelayed(.1f, () =>
+            {
+                try
+                {
+                    SpawnItems();
+                }
+                catch(Exception e)
+                {
+                    Log.Error(e);
+                }
+            });
+
+
+        }
+
+        private void SpawnItems()
+        {
+            Dictionary<Exiled.API.Enums.RoomType, ItemType> dict = new Dictionary<Exiled.API.Enums.RoomType, ItemType>()
+            {
+                {RoomType.EzGateA,ItemType.KeycardZoneManager },
+                {RoomType.EzDownstairsPcs,ItemType.Flashlight },
+
+            };
+
+
+            foreach(var kvp in dict)
+            {
+                Room room = Room.Get(kvp.Key);
+
+                RoomSpawnedCustomPoint point = RoomCustomPointHandler.GetAll(room, RoomCustomPointType.ItemSpawn).First();
+                if(point == null)
+                {
+                    KELog.Debug("null");
+                }
+                Pickup pickup = Pickup.CreateAndSpawn(kvp.Value, point.Position);
+                KELog.Debug("spawned " + pickup);
+            }
+
+        }
+
+        public void OnRoundEnded(RoundEndedEventArgs ev)
+        {
+            RoomSpawnedCustomPoint.DestroyAll();
+        }
+
+        public void OnRoundRestarted()
+        {
+            RoomSpawnedCustomPoint.DestroyAll();
+        }
+
+
+        #endregion
 
     }
 
@@ -108,13 +194,11 @@ namespace KruacentExiled
         public bool IsEnabled { get; set; } = true;
         public bool Debug { get; set; } = false;
 
-
         public CustomRoles.Config CustomRoleConfig { get; set; } = new CustomRoles.Config();
         public CustomItems.Config CustomItemConfig { get; set; } = new CustomItems.Config();
         public Map.Config MapConfig { get; set; } = new Map.Config();
         public Misc.Config MiscConfig { get; set; } = new Misc.Config();
-        public GlobalEventFramework.Config GEFConfig { get; set; } = new GlobalEventFramework.Config();
-        public GlobalEventFramework.Examples.Config GEFEConfig { get; set; } = new GlobalEventFramework.Examples.Config();
+        public GlobalEvents.Config GEFEConfig { get; set; } = new GlobalEvents.Config();
     }
 
 }

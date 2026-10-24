@@ -8,6 +8,7 @@ using Exiled.API.Interfaces;
 using KE.Utils.API;
 using KruacentExiled.CustomRoles.CustomSCPTeam;
 using KruacentExiled.Map;
+using KruacentExiled.Map.Surface.SupplyDrops.SupplyDropTimeModifier;
 using LabApi.Events.Handlers;
 using MEC;
 using PlayerRoles;
@@ -35,6 +36,13 @@ namespace KruacentExiled.Map.Surface.SupplyDrops
         /// </summary>
         public static readonly TimeSpan TimeSpawn = new TimeSpan(0, 5, 0);
 
+
+
+        public static readonly TimeSpan DefaultTimeSpawn = new TimeSpan(0, 5, 0);
+        public static readonly TimeSpan MinimumTimeSpawn = new TimeSpan(0, 0, 30);
+        public static readonly TimeSpan MaxTimeSpawn = new TimeSpan(1, 0, 0);
+        public static readonly TimeSpan CurrentTimeSpawn = new TimeSpan(0, 5, 0);
+
         /// <summary>
         /// The time after someone pickup the <see cref="SupplyDrop"/> before it explodes
         /// </summary>
@@ -50,6 +58,29 @@ namespace KruacentExiled.Map.Surface.SupplyDrops
 
         private static Stopwatch _spawnTime;
         private static TimeSpan _nextSpawn;
+
+
+
+        public static TimeSpan Clamp(TimeSpan value, TimeSpan min, TimeSpan max)
+        {
+            if (value < min)
+            {
+                value = min;
+            }
+            else if (value > max)
+            {
+                value = max;
+            }
+
+            return value;
+        }
+
+        public static void ChangeTime(TimeSpan delta)
+        {
+            _nextSpawn = Clamp(_nextSpawn + delta, MinimumTimeSpawn, MaxTimeSpawn);
+        }
+
+
         private static List<SupplyDrop> list = new List<SupplyDrop>();
         public static IReadOnlyCollection<Vector3> SpawnPositions = new List<Vector3>()
         {
@@ -117,12 +148,14 @@ namespace KruacentExiled.Map.Surface.SupplyDrops
             if (!IsActivated) return;
 
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStarted;
+            SupplyDropTimeModifierBase.InternalSubscribeEvents();
         }
 
         public static void UnsubscribeEvents()
         {
             if (!IsActivated) return;
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStarted;
+            SupplyDropTimeModifierBase.InternalUnsubscribeEvents();
 
             if (_handle.IsValid)
             {
@@ -133,7 +166,7 @@ namespace KruacentExiled.Map.Surface.SupplyDrops
         public static void OnRoundStarted()
         {
             _spawnTime = Stopwatch.StartNew();
-            _nextSpawn = TimeSpawn;
+            _nextSpawn = DefaultTimeSpawn;
 
             _handle = Timing.RunCoroutine(Loop());
         }
@@ -220,6 +253,9 @@ namespace KruacentExiled.Map.Surface.SupplyDrops
             }
             Log.Debug($"Player {p.Id} got the supply drop");
             //todo add trapped drop (explode)
+
+
+
             SideClaimed = p.Role;
             PlayerClaimed = p;
 

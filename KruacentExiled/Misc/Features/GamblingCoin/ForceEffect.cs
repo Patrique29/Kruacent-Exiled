@@ -23,11 +23,6 @@ namespace KruacentExiled.Misc.Features.GamblingCoin
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            
-
-
-            
-
             if (arguments.Count < 1)
             {
                 response = "need effect";
@@ -43,32 +38,40 @@ namespace KruacentExiled.Misc.Features.GamblingCoin
                     break;
                 }
             }
-            if (chose is null)
+            if (chose == null)
             {
                 response = $"effect {arguments.At(0)} not found";
                 return false;
             }
-
-            List<ReferenceHub> listhub = RAUtils.ProcessPlayerIdOrNamesList(arguments, 1, out string[] newargs);
-
-
-
-            if(listhub.Count == 0)
+            string players;
+            if (arguments.Count >= 2)
             {
-                
-                Player player = Player.Get(sender);
-                if (player is null)
+                List<ReferenceHub> listhub = RAUtils.ProcessPlayerIdOrNamesList(arguments, 1, out string[] newargs);
+                if (listhub == null)
                 {
-                    response = "player not found";
+                    response = "error parsing players";
                     return false;
                 }
-
-                listhub.Add(player.ReferenceHub);
+                foreach (ReferenceHub hub in listhub)
+                {
+                    Player player = Player.Get(hub);
+                    try
+                    {
+                        chose.ExecuteEffect(player);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                        response = "error with coin effect";
+                        return false;
+                    }
+                }
+                ListPool<ReferenceHub>.Pool.Return(listhub);
+                players = string.Join(" ", newargs);
             }
-
-            foreach (ReferenceHub hub in listhub)
+            else
             {
-                Player player = Player.Get(hub);
+                Player player = Player.Get(sender);
                 try
                 {
                     chose.ExecuteEffect(player);
@@ -79,10 +82,11 @@ namespace KruacentExiled.Misc.Features.GamblingCoin
                     response = "error with coin effect";
                     return false;
                 }
+                players = player.Nickname;
             }
-            string text = string.Join(" ", newargs);
             
-            response = $"forced effect {chose.Name} on {text}";
+            
+            response = $"forced effect {chose.Name} on {players}";
             return true;
 
 

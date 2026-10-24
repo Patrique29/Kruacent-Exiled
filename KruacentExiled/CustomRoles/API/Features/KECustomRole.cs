@@ -8,12 +8,16 @@ using Exiled.CustomRoles.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Exiled.Events.EventArgs.Server;
 using InventorySystem.Configs;
+using InventorySystem.Items;
+using InventorySystem.Items.Firearms.Attachments;
 using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.DisplayMeow.Placements;
 using KE.Utils.API.Translations;
 using KruacentExiled.CustomRoles.API.HintPositions;
 using KruacentExiled.CustomRoles.API.Interfaces;
 using KruacentExiled.CustomRoles.Events.EventArgs;
+using KruacentExiled.Misc.Events.EventsArgs;
+using KruacentExiled.Misc.Utils;
 using MEC;
 using PlayerRoles;
 using System;
@@ -253,7 +257,11 @@ namespace KruacentExiled.CustomRoles.API.Features
             {
                 Exiled.Events.Handlers.Player.ReceivingEffect += OnReceivingEffect;
             }
-            
+
+            if (this is ILucky)
+            {
+                RandomNumberGenerator.OnRollingChance += HandleRollingChance;
+            }
         }
 
 
@@ -266,6 +274,11 @@ namespace KruacentExiled.CustomRoles.API.Features
             if (this is IEffectImmunity)
             {
                 Exiled.Events.Handlers.Player.ReceivingEffect -= OnReceivingEffect;
+            }
+
+            if (this is ILucky)
+            {
+                RandomNumberGenerator.OnRollingChance -= HandleRollingChance;
             }
         }
 
@@ -305,6 +318,33 @@ namespace KruacentExiled.CustomRoles.API.Features
                 ev.IsAllowed = false;
             }
 
+        }
+
+        private void HandleRollingChance(RollingChanceEventArgs ev)
+        {
+            ILucky luckyRole = this as ILucky;
+
+            if (ev.TargetPlayer != null)
+            {
+                if (TrackedPlayers.Contains(ev.TargetPlayer))
+                {
+                    ApplyLuck(luckyRole, ev);
+                }
+                return;
+            }
+        }
+
+        private void ApplyLuck(ILucky luckyRole, RollingChanceEventArgs ev)
+        {
+            switch (luckyRole.LuckProfile)
+            {
+                case LuckProfile.UltimateLucky:
+                    ev.ForcedResult = ev.IsBeneficial;
+                    break;
+                case LuckProfile.UltimateUnlucky:
+                    ev.ForcedResult = !ev.IsBeneficial;
+                    break;
+            }
         }
 
 
@@ -547,15 +587,41 @@ namespace KruacentExiled.CustomRoles.API.Features
 
             for (int i = 0; i < Inventory.Count; i++)
             {
-                string item = Inventory[i];
-                Log.Debug(Name + ": Adding " + item + " to inventory.");
-                if (TryAddItem(player, item) && CustomItem.TryGet(item, out CustomItem customItem) && customItem is CustomWeapon customWeapon && player.CurrentItem is Firearm firearm && !customWeapon.Attachments.IsEmpty())
+                string itemName = Inventory[i];
+
+
+                Item item = null;
+                if (Enum.TryParse<ItemType>(itemName, out var result))
                 {
-                    firearm.AddAttachment(customWeapon.Attachments);
-                    Log.Debug(Name + ": Applied attachments to " + item + ".");
+                    if (result.IsAmmo())
+                    {
+                        player.Ammo[result] = 100;
+                    }
+                    else
+                    {
+                        item = player.AddItem(result);
+                    }
+                }
+
+
+                Log.Debug(Name + ": Adding " + item + " to inventory.");
+                if (item != null)
+                {
+
+                    if (CustomItem.TryGet(item, out CustomItem customItem) && customItem is CustomWeapon customWeapon && player.CurrentItem is Firearm currentFirearm && !customWeapon.Attachments.IsEmpty())
+                    {
+                        currentFirearm.AddAttachment(customWeapon.Attachments);
+                    }
+                    else if (item is Firearm firearm)
+                    {
+                        uint code = AttachmentsServerHandler.ServerGetReceivedPlayerPreference(firearm.Base);
+                        firearm.Base.ApplyAttachmentsCode(code, reValidate: true);
+
+                    }
                 }
             }
         }
+
 
         protected virtual void GiveAmmo(Player player)
         {
@@ -610,7 +676,7 @@ namespace KruacentExiled.CustomRoles.API.Features
         {
             KEAbilities.TryRemoveFromPlayer(player);
 
-            if (Abilities != null)
+            if (Abilities != null && Abilities.Count > 0)
             {
                 foreach (string name in Abilities)
                 {
@@ -819,7 +885,7 @@ namespace KruacentExiled.CustomRoles.API.Features
         /// <returns>A <see cref="DictionaryPool{TKey, TValue}"/> of all <see cref="KECustomRole"/> available to the <see cref="Player"/> and its chance</returns>
         public static Dictionary<KECustomRole, float> GetAvailableCustomRole(Player player)
         {
-            return Registered.Where(cr => cr.IsAvailable(player)).ToDictionary(c => c, c => c.SpawnChance);
+            return Registered.Where(cr => cr.IsAvailable(player) && cr.SpawnChance > 0).ToDictionary(c => c, c => c.SpawnChance);
         }
         /// <summary>
         /// Give a random <see cref="KECustomRole"/> to a <see cref="Player"/>. <br/>

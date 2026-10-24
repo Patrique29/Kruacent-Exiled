@@ -127,10 +127,10 @@ namespace KruacentExiled.CustomItems.Items
             switch (reviver.Role.Side)
             {
                 case Side.ChaosInsurgency:
-                    deadPlayer.ChangeRole(RoleTypeId.ChaosRifleman, SpawnReason.ForceClass, RoleSpawnFlags.AssignInventory);
+                    deadPlayer.ChangeRole(RoleTypeId.ChaosRifleman, SpawnReason.ForceClass, RoleSpawnFlags.All);
                     return true;
                 case Side.Mtf:
-                    deadPlayer.ChangeRole(RoleTypeId.NtfPrivate, SpawnReason.ForceClass, RoleSpawnFlags.AssignInventory);
+                    deadPlayer.ChangeRole(RoleTypeId.NtfPrivate, SpawnReason.ForceClass, RoleSpawnFlags.All);
                     return true;
             }
             return false;

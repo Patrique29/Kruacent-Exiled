@@ -47,7 +47,6 @@ namespace KruacentExiled.CustomItems
 
             KE.Utils.API.Sounds.SoundPlayer.Load();
 
-            PoseRoomSpawnPointHandler.AddRoomPose(config.LocalpositionInRooms);
 
 
             //PoseRoomSpawnPointHandler.AddRoomPose(new HashSet<PoseRoomSpawnPointHandler.ItemSpawn>()
@@ -87,61 +86,14 @@ namespace KruacentExiled.CustomItems
             KECustomItem.RegisterItems();
             UpgradeHandler.SubscribeEvents();
             LightsHandler.SubscribeEvents();
-            Exiled.Events.Handlers.Map.Generated += OnGenerated;
         }
 
-        /// <summary>
-        /// output the roompos as a config form
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator<float> OutputToFile()
-        {
-
-            yield return Timing.WaitForSeconds(5);
-            string path = Path.Combine(Paths.Configs, "output.txt");
-
-            Dictionary<RoomType, List<Vector3>> dict = new Dictionary<RoomType, List<Vector3>>();
-
-
-            foreach(PoseRoomSpawnPointHandler.ItemSpawn spawn in PoseRoomSpawnPointHandler.AllPoses)
-            {
-                if (!dict.ContainsKey(spawn.roomType))
-                {
-                    dict[spawn.roomType] = new List<Vector3>();
-                }
-
-                dict[spawn.roomType].Add(spawn.localposition);
-            }
-
-            string result = "";
-
-            foreach (var kvp in dict)
-            {
-                List<Vector3> positions = dict[kvp.Key];
-
-                result += "    ";
-                result += kvp.Key.ToString() + ":\n";
-
-                foreach(Vector3 position in positions)
-                {
-                    result += "    - x: " + position.x.ToString("R") + "\n";
-                    result += "      y: " + position.y.ToString("R") + "\n";
-                    result += "      z: " + position.z.ToString("R") + "\n";
-                }
-
-            }
-
-
-
-            File.WriteAllText(path,result);
-        }
 
         public override void OnDisabled()
         {
             KECustomItem.UnregisterItems();
             UpgradeHandler?.UnsubscribeEvents();
             LightsHandler?.UnsubscribeEvents();
-            Exiled.Events.Handlers.Map.Generated -= OnGenerated;
 
             harmony.UnpatchAll(harmony.Id);
             SettingsHandler = null;
@@ -150,10 +102,6 @@ namespace KruacentExiled.CustomItems
             Instance = null;
         }
 
-        private void OnGenerated()
-        {
-            PoseRoomSpawnPointHandler.Reset();
-        }
 
     }
 }
