@@ -39,7 +39,7 @@ namespace KruacentExiled.Achievements.CustomRoles
         }
         private void OnHurt(PlayerHurtEventArgs ev)
         {
-            if (ev.Player == null) return;
+            if (ev.Player.ReferenceHub == null) return;
 
             if (Negotiator.Check(ev.Attacker))
             {
