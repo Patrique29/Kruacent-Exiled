@@ -42,7 +42,7 @@ namespace KruacentExiled.GlobalEvents.MiddleEvents
 
         }
 
-        protected override void Disable(KEEvents ev)
+        protected override void Disable()
         {
             OnDisable();
         }

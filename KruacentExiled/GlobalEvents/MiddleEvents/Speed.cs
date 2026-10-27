@@ -48,10 +48,10 @@ namespace KruacentExiled.GlobalEvents.MiddleEvents
             Exiled.Events.Handlers.Scp173.Blinking -= SpeedyNut;
         }
 
-        protected override void Disable(KEEvents ev)
+        protected override void Disable()
         {
             OnDisable();
-            base.Disable(ev);
+            base.Disable();
         }
 
         public void OnDisable()

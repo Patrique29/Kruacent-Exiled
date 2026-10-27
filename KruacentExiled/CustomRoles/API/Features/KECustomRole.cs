@@ -169,7 +169,6 @@ namespace KruacentExiled.CustomRoles.API.Features
 
             TranslationHub.Add(CustomRoleTranslationId, translate);
 
-            Log.Debug("adding keys to "+Name);
         }
 
         private bool activated = false;
@@ -991,7 +990,7 @@ namespace KruacentExiled.CustomRoles.API.Features
         public static IEnumerable<KECustomRole> Unregister()
         {
             List<KECustomRole> list = new List<KECustomRole>();
-            foreach (KECustomRole item in Registered)
+            foreach (KECustomRole item in Registered.ToList())
             {
                 item.TryUnregister();
                 list.Add(item);
