@@ -87,7 +87,7 @@ namespace KruacentExiled.CustomRoles.CR.Human
             
         }
 
-        private void CreateSpawnHint(Player player)
+        public static void CreateSpawnHint(Player player)
         {
             ReferenceHub randomscp = SCPTeam.SCPs.GetRandomValue(p => p.GetRoleId() != RoleTypeId.Scp0492);
 
