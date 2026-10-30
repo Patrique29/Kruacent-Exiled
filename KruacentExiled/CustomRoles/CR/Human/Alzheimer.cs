@@ -75,6 +75,7 @@ namespace KruacentExiled.CustomRoles.CR.Human
         {
             try
             {
+                KELog.Debug("round time : " + Round.ElapsedTime.TotalSeconds);
                 if (Round.ElapsedTime.TotalSeconds <= 20)
                 {
                     Timing.CallDelayed(3f, () => CreateSpawnHint(player));
@@ -89,15 +90,6 @@ namespace KruacentExiled.CustomRoles.CR.Human
 
         public static void CreateSpawnHint(Player player)
         {
-            ReferenceHub randomscp = SCPTeam.SCPs.GetRandomValue(p => p.GetRoleId() != RoleTypeId.Scp0492);
-
-            if (randomscp == null) return;
-
-            ISCPPreferences trueSCP = Spawn.GetSCP(Player.Get(randomscp));
-
-
-
-            List<ISCPPreferences> allOtherRole;
 
             int numberscp = SCPTeam.SCPs.Count;
             if (numberscp == 0)
@@ -105,12 +97,27 @@ namespace KruacentExiled.CustomRoles.CR.Human
                 Log.Warn("no scp found");
                 return;
             }
-            if (numberscp <= 1)
+            ReferenceHub randomscp = SCPTeam.SCPs.GetRandomValue(p => p.GetRoleId() != RoleTypeId.Scp0492);
+
+
+            ISCPPreferences trueSCP = Spawn.GetSCP(Player.Get(randomscp));
+
+
+
+            List<ISCPPreferences> allOtherRole;
+
+            
+            if (numberscp == 1)
             {
+                Log.Warn("one scp found");
                 allOtherRole = Spawn.allRoles.Where(s => s != trueSCP && !s.IsSupport).ToList();
             }
             else
             {
+                Log.Warn("mutilple scp found : "+ numberscp);
+                
+
+
                 allOtherRole = Spawn.allRoles.Where(s => s != trueSCP).ToList();
                 
             }

@@ -18,6 +18,7 @@ namespace KruacentExiled.CustomRoles.CustomSCPTeam
                 Exiled.Events.Handlers.Server.EndingRound += OnRoundEnding;
                 LabApi.Events.Handlers.ServerEvents.RoundEndingConditionsCheck += OnRoundEndingConditionsCheck;
                 LabApi.Events.Handlers.PlayerEvents.ChangedRole += OnChangedRole;
+                LabApi.Events.Handlers.PlayerEvents.Left += OnLeft;
                 _event = true;
             }
 
@@ -55,6 +56,15 @@ namespace KruacentExiled.CustomRoles.CustomSCPTeam
             classList = new EndRoundClassList();
 
             return classList.CanRoundEnd(out leadingTeam);
+        }
+
+        private static void OnLeft(PlayerLeftEventArgs ev)
+        {
+            ReferenceHub hub = ev.Player.ReferenceHub;
+            if (SCPTeam.IsSCP(hub))
+            {
+                SCPTeam.RemoveSCP(hub);
+            }
         }
 
         private static void OnChangedRole(PlayerChangedRoleEventArgs ev)
