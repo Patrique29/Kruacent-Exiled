@@ -19,7 +19,7 @@ using Exiled.Events.EventArgs.Map;
 
 namespace KruacentExiled.CustomItems.Items
 {
-    public class FlowerStick : KECustomItem
+    public class FlowerStick : KECustomItem, IHiddenName
     {
         protected override Dictionary<string, Dictionary<string, string>> SetTranslation()
         {
@@ -49,6 +49,9 @@ namespace KruacentExiled.CustomItems.Items
 
 
         public float CooldownInspect { get; }
+
+        public bool IsHiddenName => true;
+
         private Dictionary<Player, DateTime> cooldownInspect;
         protected override void SubscribeEvents()
         {
