@@ -4,6 +4,7 @@ using Exiled.Events.EventArgs.Player;
 using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.DisplayMeow.Placements;
 using MEC;
+using System;
 using System.Text;
 
 namespace KruacentExiled.Misc.Features.DisplayPluginVersion
@@ -12,8 +13,11 @@ namespace KruacentExiled.Misc.Features.DisplayPluginVersion
     {
         public static HintPosition HintPosition = new DisplayPluginVersionPosition();
 
+        private StringBuilder stringBuilder;
+
         public override void SubscribeEvents()
         {
+            stringBuilder = StringBuilderPool.Pool.Get();
             Exiled.Events.Handlers.Player.Verified += OnVerified;
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStarted;
             base.SubscribeEvents();
@@ -23,6 +27,8 @@ namespace KruacentExiled.Misc.Features.DisplayPluginVersion
         {
             Exiled.Events.Handlers.Player.Verified -= OnVerified;
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStarted;
+            StringBuilderPool.Pool.Return(stringBuilder);
+
             base.UnsubscribeEvents();
         }
 
@@ -39,22 +45,21 @@ namespace KruacentExiled.Misc.Features.DisplayPluginVersion
             {
                 if (Round.IsLobby)
                 {
-                    DisplayHandler.Instance.CreateAuto(player, (args) => GetPlayers(player), HintPosition.HintPlacement);
+                    //probably better with the Addhint
+                    DisplayHandler.Instance.CreateAuto(player, (args) => GetPlayers(), HintPosition.HintPlacement);
                 }
             });
 
         }
 
-        private string GetPlayers(Player player)
+        private string GetPlayers()
         {
             if (!Round.IsLobby) return string.Empty;
+            stringBuilder.Clear();
+            stringBuilder.Append('v');
+            stringBuilder.Append(KruacentExiled.MainPlugin.Instance.Version);
 
-            StringBuilder sb = StringBuilderPool.Pool.Get();
-
-            sb.Append("v");
-            sb.Append(KruacentExiled.MainPlugin.Instance.Version);
-
-            return StringBuilderPool.Pool.ToStringReturn(sb);
+            return stringBuilder.ToString();
         }
 
         private void OnRoundStarted()
