@@ -42,7 +42,6 @@ namespace KruacentExiled.Map
 
         public override IConfig Config => config;
         private Config config;
-        private Harmony harmony;
 
         private SurfaceRooms SurfaceRooms;
         private CREventHandler cREventHandler;
@@ -54,7 +53,6 @@ namespace KruacentExiled.Map
         {
             Instance = this;
             handler = new Handler();
-            harmony = new Harmony(Prefix);
 
             config = KruacentExiled.MainPlugin.Instance.Config.MapConfig;
 
@@ -74,7 +72,6 @@ namespace KruacentExiled.Map
             GamblingRoom.SubscribeEvents();
             //MoreRoom.CreateAll();
             //MoreRoom.SubscribeEvents();
-            harmony.PatchAll(KruacentExiled.MainPlugin.Instance.Assembly);
 
              
 
@@ -213,7 +210,6 @@ namespace KruacentExiled.Map
 
 
             SupplyDrop.UnsubscribeEvents();
-            harmony.UnpatchAll(harmony.Id);
             GamblingRoom.UnsubscribeEvents();
             //MoreRoom.UnsubscribeEvents();
             handler = null;

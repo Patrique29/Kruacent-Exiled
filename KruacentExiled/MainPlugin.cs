@@ -73,8 +73,8 @@ namespace KruacentExiled
                 }
 
             }
-            //harmony = new Harmony("KEMainPlugin");
-            //harmony.PatchAll();
+            harmony = new Harmony("KEMainPlugin");
+            harmony.PatchAll();
 
             AudioHandler = new AudioHandler(Config.Debug);
             AudioHandler.SubscribeEvents();
@@ -99,7 +99,7 @@ namespace KruacentExiled
         public override void OnDisabled()
         {
 
-            //harmony.UnpatchAll("KEMainPlugin");
+            harmony.UnpatchAll("KEMainPlugin");
 
             for (int i = 0; i < plugins.Length; i++)
             {

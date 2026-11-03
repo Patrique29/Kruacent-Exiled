@@ -33,7 +33,6 @@ namespace KruacentExiled.CustomRoles
         private SettingHandler _settingHandler;
         internal static SettingHandler SettingHandler => Instance?._settingHandler;
 
-        private Harmony Harmony;
 
         internal Dictionary<string, TextImage> icons;
 
@@ -59,8 +58,7 @@ namespace KruacentExiled.CustomRoles
             
             Timing.RunCoroutine(LoadImage());
 
-            Harmony = new Harmony(Name);
-            Harmony.PatchAll();
+
             SettingHandler.SubscribeEvents();
             KEAbilities.Register(KruacentExiled.MainPlugin.Instance.Assembly);
             KECustomRole.Register();
@@ -72,7 +70,6 @@ namespace KruacentExiled.CustomRoles
             icons?.Clear();
             KECustomRole.Unregister();
             SettingHandler.UnsubscribeEvents();
-            Harmony.UnpatchAll();
 
             KEAbilities.Unregister();
             UnsubscribeEvents();

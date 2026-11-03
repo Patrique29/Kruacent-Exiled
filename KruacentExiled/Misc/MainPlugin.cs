@@ -46,7 +46,6 @@ namespace KruacentExiled.Misc
         internal EventHandlers _gamblingCoinHandler {  get; private set; }
         internal SpawnLcz SpawnLcz { get; private set; }
         internal LastHumanHandler LastHuman { get; private set; }
-        private Harmony harmony;
 
         internal VoteStart vote { get; private set; }
         internal DisplayPluginVersion PluginVersion { get; private set; }
@@ -63,7 +62,6 @@ namespace KruacentExiled.Misc
         public override void OnEnabled()
         {
             Instance = this;
-            harmony = new Harmony(Prefix);
 
             config = KruacentExiled.MainPlugin.Instance.Config.MiscConfig;
 
@@ -93,7 +91,6 @@ namespace KruacentExiled.Misc
             GlobalSettingsHandler.Instance.SubscribeEvents();
             RegisterTranslations();
 
-            harmony.PatchAll(KruacentExiled.MainPlugin.Instance.Assembly);
             ClassDDoor.SubscribeEvents();
             ServerHandle.RoundEnded += OnRoundEnded;
             MiscFeature.SubscribeAllEvents();
@@ -131,7 +128,6 @@ namespace KruacentExiled.Misc
             AutoTesla.StopLoop();
             MiscFeature.UnsubscribeAllEvents();
             ClassDDoor.UnsubscribeEvents();
-            harmony.UnpatchAll(harmony.Id);
             GlobalSettingsHandler.Instance.UnsubscribeEvents();
 
             _914 = null;
@@ -155,7 +151,6 @@ namespace KruacentExiled.Misc
             LobbyHint = null;
             LimitedSCP0492 = null;
             LastHuman = null;
-            harmony = null;
             Instance = null;
         }       
         
