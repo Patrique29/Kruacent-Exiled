@@ -95,7 +95,7 @@ namespace KruacentExiled.Misc.Features.VoteStart
         /// <returns></returns>
         public bool CheckVote()
         {
-            return Voted.Count >= MainPlugin.Configs.MinPlayerVote;
+            return Voted.Count >= MinimumVote;
         }
 
         public bool DidVote(int playerId)
