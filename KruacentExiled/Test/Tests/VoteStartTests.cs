@@ -13,11 +13,10 @@ namespace KruacentExiled.Test.Tests
     public class VoteStartTests
     {
         private VoteStart _votestart;
-        private int _defaultMinPlayer;
         public VoteStartTests()
         {
             _votestart = new VoteStart();
-            _defaultMinPlayer = Misc.MainPlugin.Configs.MinPlayerVote;
+            
         }
 
 
@@ -86,21 +85,25 @@ namespace KruacentExiled.Test.Tests
             }, "should send an exception");
         }
 
-        // max number
-        [TestCase(2)]
-        [TestCase(5)]
-        public void CheckVote_NormalCase_ReturnTrue(int value)
+        // number vote, min number 
+        [TestCase(5,2,true)]
+        [TestCase(8,8,true)]
+        [TestCase(2, 5,false)]
+        [TestCase(8, 69,false)]
+        public void CheckVote_NormalCase(int nbVote, int minNumber,bool expected)
         {
             _votestart.RemoveAllVote();
 
+            _votestart.MinimumVote = minNumber;
+
             Assert.IsFalse(_votestart.CheckVote(), "should be false");
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < nbVote; i++)
             {
-                _votestart.AddVote(value+i);
+                _votestart.AddVote(i);
             }
 
-            Assert.IsTrue(_votestart.CheckVote(), "should be true");
+            Assert.IsTrue(_votestart.CheckVote() == expected, "should be "+ expected);
         }
     }
 }
