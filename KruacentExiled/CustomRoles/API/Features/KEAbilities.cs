@@ -1,15 +1,10 @@
 ﻿using Exiled.API.Features;
 using Exiled.API.Features.Pools;
-using HintServiceMeow.Core.Enum;
-using HintServiceMeow.Core.Models.Arguments;
-using HintServiceMeow.Core.Models.Hints;
 using KE.Utils.API;
 using KE.Utils.API.Displays.DisplayMeow;
 using KE.Utils.API.Displays.Feeds;
 using KE.Utils.API.Features;
 using KE.Utils.API.Translations;
-using KruacentExiled.CustomRoles.API.HintPositions;
-using KruacentExiled.CustomRoles.API.Interfaces;
 using KruacentExiled.CustomRoles.API.Interfaces.Ability;
 using KruacentExiled.CustomRoles.Settings;
 using LabApi.Events.Arguments.PlayerEvents;
@@ -53,8 +48,7 @@ namespace KruacentExiled.CustomRoles.API.Features
         private HashSet<Player> blockedPlayer = new HashSet<Player>();
         private HashSet<Player> playerWithActiveAbility = new HashSet<Player>();
 
-
-
+        public const int InitialAbilitySlot = 5;
         public static Dictionary<Player, List<KEAbilities>> PlayersAbility { get;} = new Dictionary<Player, List<KEAbilities>>();
 
 
@@ -77,6 +71,8 @@ namespace KruacentExiled.CustomRoles.API.Features
             TranslationHub.Add(AbilityTranslationId, "en", "AbilityReady", "READY");
             TranslationHub.Add(AbilityTranslationId, "fr", "AbilityReady", "PRÊT");
 
+            Ui = new KEAbilityUI();
+
             LabApi.Events.Handlers.PlayerEvents.Left += OnLeft;
             LabApi.Events.Handlers.ServerEvents.RoundRestarted += OnRoundEnded;
 
@@ -85,11 +81,13 @@ namespace KruacentExiled.CustomRoles.API.Features
             activated = true;
         }
 
+
+        private static KEAbilityUI Ui = null;
+
         private static void OnRoundEnded()
         {
             PlayersAbility.Clear();
-            PlayersHints.Clear();
-            AddonHints.Clear();
+            Ui.Reset();
         }
 
         private static void OnLeft(PlayerLeftEventArgs ev)
@@ -97,14 +95,7 @@ namespace KruacentExiled.CustomRoles.API.Features
             Player player = ev.Player;
 
             PlayersAbility.Remove(player);
-            if (PlayersHints.TryGetValue(player, out var hints))
-            {
-                foreach (AbstractHint hint in hints)
-                {
-                    AddonHints.Remove(hint);
-                }
-                PlayersHints.Remove(player);
-            }
+            Ui.Stop(player);
         }
 
 
@@ -297,7 +288,7 @@ namespace KruacentExiled.CustomRoles.API.Features
                     PlayersAbility.Add(player, new List<KEAbilities>());
                 }
                 PlayersAbility[player].Add(this);
-                InitHints(player);
+                Ui.InitHints(player);
 
 
                 AbilityAdded(player);
@@ -583,9 +574,6 @@ namespace KruacentExiled.CustomRoles.API.Features
         #endregion
 
         #region gui
-
-
-        
         protected virtual void GuiReady(StringBuilder sb, Player player)
         {
 
@@ -649,11 +637,9 @@ namespace KruacentExiled.CustomRoles.API.Features
         /// <summary>
         /// The full ability gui
         /// </summary>
-        protected virtual void Gui(StringBuilder sb,Player player)
+        public virtual void Gui(StringBuilder sb,Player player)
         {
-            IConditional conditional = this as IConditional;
-
-            if(conditional != null)
+            if(this is IConditional conditional)
             {
                 if (conditional.CheckCondition(player))
                 {
@@ -676,123 +662,11 @@ namespace KruacentExiled.CustomRoles.API.Features
             sb.Append("</color>");
         }
 
-
-        public static Dictionary<Player, List<AbstractHint>> PlayersHints { get; } = new Dictionary<Player, List<AbstractHint>>();
-        public static Dictionary<AbstractHint, AbstractHint> AddonHints { get; } = new Dictionary<AbstractHint, AbstractHint>();
-        public const int InitialAbilitySlot = 5;
-        private void InitHints(Player player)
-        {
-
-
-            if (!PlayersHints.TryGetValue(player, out var _))
-            {
-                PlayersHints.Add(player, new List<AbstractHint>());
-                for (int i = 0; i < InitialAbilitySlot; i++)
-                {
-                    AbilitiesPosition position = AbilitiesPosition.GetIndex(i);
-                    AbstractHint hint = DisplayHandler.Instance.CreateAuto(player, arg => UpdateHint(arg), position.HintPlacement);
-                    PlayersHints[player].Add(hint);
-                    AddonHints.Add(hint, DisplayHandler.Instance.CreateAuto(player, arg => UpdateAddon(arg,hint), AddonAbilitiesPosition.Get(position).HintPlacement,HintSyncSpeed.Slow));
-                }
-
-
-
-            }
-
-        }
-
-        private static HashSet<KEAbilities> addonAbilitiesexception = new HashSet<KEAbilities>();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="arg"></param>
-        /// <param name="hint">the other hint</param>
-        /// <returns></returns>
-        private static string UpdateAddon(AutoContentUpdateArg arg,AbstractHint hint)
-        {
-            Player player = Player.Get(arg.PlayerDisplay.ReferenceHub);
-            int index = PlayersHints[player].FindIndex(h => h == hint);
-
-            if (PlayersAbility[player].TryGet(index, out KEAbilities ability))
-            {
-                if (ability is ICustomIcon icon && !addonAbilitiesexception.Contains(ability))
-                {
-                    StringBuilder sb = StringBuilderPool.Pool.Get();
-                    try
-                    {
-                        sb.Append(icon.IconName.RawString);
-                    }
-                    catch(KeyNotFoundException)
-                    {
-                        addonAbilitiesexception.Add(ability);
-                        Log.Error("Icon for ability "+ ability.Name+ " is missing");
-                        return " ";
-                    }
-                    return StringBuilderPool.Pool.ToStringReturn(sb);
-                }
-            }
-            return " ";
-        }
-
-
-
-
-
-        private static string UpdateHint(AutoContentUpdateArg arg)
-        {
-            Player player = Player.Get(arg.PlayerDisplay.ReferenceHub);
-            int index = PlayersHints[player].FindIndex(h => h == arg.Hint);
-
-
-
-            if (PlayersAbility[player].TryGet(index,out KEAbilities ability))
-            {
-                
-                StringBuilder sb = StringBuilderPool.Pool.Get();
-                ability.Gui(sb,player);
-                return StringBuilderPool.Pool.ToStringReturn(sb);
-            }
-
-
-
-            return " ";
-        }
-
-
-        public static string UpdateGUI(Player player)
-        {
-            StringBuilder builder = StringBuilderPool.Pool.Get();
-            
-
-            List<KEAbilities> allAbilities = PlayersAbility[player];
-
-            for (int i = 0; i < allAbilities.Count; i++)
-            {
-
-
-                KEAbilities ability = allAbilities[i];
-                ability.Gui(builder,player);
-
-
-            }
-
-            string msg = builder.ToString();
-            StringBuilderPool.Pool.Return(builder);
-            return msg;
-        }
-
-
-
-
-
         public static void ShowAbilityHint(Player player, string text)
         {
             float delay = MainPlugin.SettingHandler.GetTime(player);
             DisplayHandler.Instance.AddHint(MainPlugin.AbilitiesDesc, player, text, delay);
         }
-
-
         #endregion
 
         public override string ToString()

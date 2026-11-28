@@ -19,7 +19,7 @@ namespace KruacentExiled.CustomRoles.API.Features.Abilities
 
         public abstract bool GetState(Player player);
         
-        protected override void Gui(StringBuilder sb, Player player)
+        public override void Gui(StringBuilder sb, Player player)
         {
             sb.Append("<color=#");
             if (GetState(player))

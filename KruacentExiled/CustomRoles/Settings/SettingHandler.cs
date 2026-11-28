@@ -211,7 +211,6 @@ namespace KruacentExiled.CustomRoles.Settings
                 KEAbilities ability = list[index];
                 playerPos[player] += movement;
                 ability?.SelectAbility(player);
-                KEAbilities.UpdateGUI(player);
             }
         }
 
